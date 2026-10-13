@@ -3,7 +3,17 @@
 // Requires env vars: STRIPE_WEBHOOK_SECRET, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 import crypto from 'crypto';
 
-const { createClient } = await import('@supabase/supabase-js').catch(() => ({}));
+// Lazy-load Supabase client inside handler (top-level await breaks Netlify's CJS bundling)
+let _createClient = null;
+async function getClient() {
+  if (!_createClient) {
+    try {
+      const mod = await import('@supabase/supabase-js');
+      _createClient = mod.createClient;
+    } catch { _createClient = () => null; }
+  }
+  return _createClient;
+}
 
 function verify(sig, raw, secret) {
   // Minimal Stripe signature check (t=...,v1=...)
@@ -25,6 +35,7 @@ export async function handler(event) {
   try { evt = JSON.parse(event.body); } catch { return { statusCode: 400, body: 'Bad JSON' }; }
 
   try {
+    const createClient = await getClient();
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
     if (evt.type === 'checkout.session.completed') {
       const s = evt.data.object;
