@@ -45,13 +45,18 @@ export default function Together({ onDisclaimer, user }) {
   // Load from Supabase + Realtime subscription (graceful offline fallback to seed posts)
   useEffect(() => {
     let chan = null;
+    let cancelled = false;
     (async () => {
+      // 8s timeout so a hanging network call can never stick the UI on "Loading…"
+      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000));
       const rows = await sb(async (s) => {
-        const { data, error } = await s.from('community_posts')
+        const q = s.from('community_posts')
           .select('*').order('created_at', { ascending: false }).limit(50);
+        const { data, error } = await Promise.race([q, timeout]);
         if (error) throw error;
         return data;
-      }, null);
+      }, null).catch(() => null);
+      if (cancelled) return;
       if (rows && rows.length) {
         setPosts(rows.map((r) => ({
           id: r.id, parent: r.anonymous ? 'Anonymous' : (r.parent_name || 'Parent 💛'),
@@ -77,7 +82,7 @@ export default function Together({ onDisclaimer, user }) {
         } catch {}
       }
     })();
-    return () => { try { chan && supabase.removeChannel(chan); } catch {} };
+    return () => { cancelled = true; try { chan && supabase.removeChannel(chan); } catch {} };
   }, []);
 
   const submit = async () => {

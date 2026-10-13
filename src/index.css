@@ -110,7 +110,7 @@ html, body {
   background: linear-gradient(180deg, #fffdfb 0%, #ffF3E6 55%, #fbe9d4 100%);
   border-top: 1px solid #ecd9bd;
   box-shadow: inset 0 1px 0 #fff, 0 -6px 18px rgba(180,120,60,.14);
-  padding: 6px 4px calc(8px + env(safe-area-inset-bottom));
+  padding: 6px 112px calc(8px + env(safe-area-inset-bottom)) 4px;
   overflow-x: auto;
 }
 .tabbar button {
