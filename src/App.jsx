@@ -13,6 +13,7 @@ import Music from './tabs/Music.jsx';
 import Recipes from './tabs/Recipes.jsx';
 import Together from './tabs/Together.jsx';
 import Settings from './tabs/Settings.jsx';
+import Parents from './tabs/Parents.jsx';
 
 const TABS = [
   { id: 'home', label: 'Home', emoji: '🏠' },
@@ -23,6 +24,7 @@ const TABS = [
   { id: 'music', label: 'Music', emoji: '🎵' },
   { id: 'recipes', label: 'Recipes', emoji: '🍎' },
   { id: 'together', label: 'Together', emoji: '❤️' },
+  { id: 'parents', label: 'Parents', emoji: '💛' },
 ];
 
 function AuthGate({ onAuth }) {
@@ -240,6 +242,7 @@ export default function App() {
       {tab === 'music' && <Music onDisclaimer={openDisclaimer} />}
       {tab === 'recipes' && <Recipes onDisclaimer={openDisclaimer} />}
       {tab === 'together' && <Together onDisclaimer={openDisclaimer} user={user} />}
+      {tab === 'parents' && <Parents />}
       {tab === 'settings' && <Settings onDisclaimer={openDisclaimer} user={user} onLogout={logout} />}
 
       {showDisclaimer && <DisclaimerModal onClose={() => setShowDisclaimer(false)} />}
