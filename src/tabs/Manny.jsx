@@ -5,7 +5,9 @@ import { GAMES, PRAISE, TRY_AGAIN } from '../data/games.js';
 import PhotoStudio from '../components/PhotoStudio.jsx';
 import StickerWorld from '../components/StickerWorld.jsx';
 import StoryMaker from '../components/StoryMaker.jsx';
+import CharacterCreator from '../components/CharacterCreator.jsx';
 import { Mascot } from '../components/Mascot.jsx';
+import { useKidProfile } from '../lib/kidProfile.js';
 
 // ================= GAME SHELL =================
 function GameShell({ game, onExit }) {
@@ -14,6 +16,9 @@ function GameShell({ game, onExit }) {
   const [picked, setPicked] = useState(null);
   const [stars, setStars] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [attemptCount, setAttemptCount] = useState(0);
+  const { recordGamePlay, getSuggestedDifficulty } = useKidProfile('manny');
   const [timerOn, setTimerOn] = useState(false);
   const [secs, setSecs] = useState(0);
   const [stats, setStats] = useStored('gameStats:' + game.id, { attempts: 0, correct: 0, byDiff: {} });
@@ -30,10 +35,25 @@ function GameShell({ game, onExit }) {
     setQ(game.gen(d)); setPicked(null); setShowHint(false);
   };
 
+  // Auto-suggest difficulty based on learned profile
+  useEffect(() => {
+    const suggested = getSuggestedDifficulty(game.id);
+    if (suggested !== diff) {
+      setDiff(suggested);
+      setQ(game.gen(suggested));
+      setPicked(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.id]);
+
   const pick = (opt) => {
     if (picked) return;
     setPicked(opt);
     const ok = opt === q.answer;
+    setAttemptCount((a) => a + 1);
+    if (ok) setCorrectCount((c) => c + 1);
+    // Learn from this play
+    recordGamePlay(game.id, diff, ok ? 1 : 0, 1);
     setStats((s) => ({ attempts: s.attempts + 1, correct: s.correct + (ok ? 1 : 0),
       byDiff: { ...s.byDiff, [diff]: (s.byDiff[diff] || 0) + (ok ? 1 : 0) } }));
     if (ok) {
@@ -218,7 +238,7 @@ export default function Manny({ onDisclaimer }) {
       <SectionHead title="🎮 Manny's World" right={<span className="streak-badge">⭐ {stars}</span>} />
       {!game && (
         <div className="row" style={{ marginBottom: 12, gap: 6, flexWrap: 'wrap' }}>
-          {[['games', '🎮 Games'], ['camera', '📷 Camera'], ['story', '📖 Story'], ['world', '🌍 My World'], ['rewards', '🏆 Rewards'], ['report', '📊 Report']].map(([id, l]) => (
+          {[['games', '🎮 Games'], ['camera', '📷 Camera'], ['story', '📖 Story'], ['world', '🌍 My World'], ['buddy', '🎨 My Buddy'], ['rewards', '🏆 Rewards'], ['report', '📊 Report']].map(([id, l]) => (
             <Btn key={id} size="sm" color={sec === id ? 'orange' : 'cream'} onClick={() => setSec(id)}>{l}</Btn>
           ))}
         </div>
@@ -240,6 +260,7 @@ export default function Manny({ onDisclaimer }) {
       {sec === 'camera' && <PhotoStudio />}
       {sec === 'story' && <StoryMaker />}
       {sec === 'world' && <StickerWorld kidId="manny" />}
+      {sec === 'buddy' && <CharacterCreator kidId="manny" onDone={() => setSec('games')} />}
       {sec === 'rewards' && <Rewards />}
       {sec === 'report' && <Report />}
 

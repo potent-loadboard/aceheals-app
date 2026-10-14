@@ -10,6 +10,7 @@ import { playAmbience, stopAudio, drum, KITS, exportBeatToWav } from '../lib/aud
 import { DISCLAIMER } from '../lib/disclaimer.js';
 import ASL from '../components/ASL.jsx';
 import StickerWorld from '../components/StickerWorld.jsx';
+import CharacterCreator from '../components/CharacterCreator.jsx';
 import { Mascot } from '../components/Mascot.jsx';
 
 // ================= AAC BOARD =================
@@ -863,7 +864,7 @@ const SECTIONS = [
   ['aac', '💬 AAC Board'], ['schedule', '📋 Schedule'], ['calm', '🌊 Calm Down'],
   ['timer', '⏱️ Timer'], ['tokens', '⭐ Tokens'], ['meltdown', '📝 Behavior'],
   ['stories', '📖 Stories'], ['hiphop', '🎵 Hip Hop'], ['sensory', '🤲 Sensory'], ['speech', '🗣️ Speech'],
-  ['asl', '🖐️ ASL'], ['world', '🌍 My World'],
+  ['asl', '🖐️ ASL'], ['world', '🌍 My World'], ['buddy', '🎨 My Buddy'],
 ];
 
 export default function Maverick({ onDisclaimer }) {
@@ -899,6 +900,7 @@ export default function Maverick({ onDisclaimer }) {
       {sec === 'speech' && <Speech />}
       {sec === 'asl' && <ASL />}
       {sec === 'world' && <StickerWorld kidId="maverick" />}
+      {sec === 'buddy' && <CharacterCreator kidId="maverick" onDone={() => setSec('aac')} />}
 
       <Footer onDisclaimer={onDisclaimer} />
     </div>
