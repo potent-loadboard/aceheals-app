@@ -1,9 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Btn } from './ui.jsx';
-import { speak, stopSpeak } from '../lib/store.js';
+import { speak, stopSpeak, useStored } from '../lib/store.js';
 
 // Living mascots — characters with personalities who react to the kids
 const MASCOTS = {
+  griffin: {
+    name: 'Giffy',
+    emoji: '🦅',
+    subtitle: 'baby griffin',
+    color: '#F1C40F',
+    personality: 'brave, cuddly, and a little clumsy',
+    greetings: [
+      "RAWR! I mean... hi! I'm Giffy! I'm a baby griffin! Wanna play?",
+      "Hi hi hi! I'm Giffy! I'm still learning to fly — wanna learn with me?",
+      "*flaps tiny wings* I'm Giffy! Let's have the BEST day ever!",
+    ],
+    praise: [
+      "RAWR! That was AMAZING! I'm doing a happy wing-flap!",
+      "You did it! I'm so proud I could fly! ...well, almost fly!",
+      "WOW WOW WOW! You're the best! Can I be your sidekick?",
+    ],
+    encourage: [
+      "It's okay! Baby griffins fall down too! Let's try again!",
+      "Hmm... even my eagle eyes need practice! You got this!",
+    ],
+    goodbye: [
+      "Bye bye! I'll be practicing my flying! *flap flap*",
+      "See you soon! Dream of flying!",
+    ],
+  },
   manny: {
     name: 'Ziggy',
     emoji: '🦊',
@@ -56,21 +81,46 @@ const MASCOTS = {
 };
 
 export function Mascot({ kidId = 'manny', mood = 'greeting', onDone }) {
-  const mascot = MASCOTS[kidId] || MASCOTS.manny;
+  const [buddy, setBuddy] = useStored(`${kidId}Buddy`, kidId === 'maverick' ? 'maverick' : 'griffin');
+  const mascot = MASCOTS[buddy] || MASCOTS.griffin;
   const [message, setMessage] = useState('');
   const [visible, setVisible] = useState(true);
+  const [picking, setPicking] = useState(false);
 
   useEffect(() => {
     const lines = mascot[mood] || mascot.greetings;
     const line = lines[Math.floor(Math.random() * lines.length)];
     setMessage(line);
     // Speak the message (emoji-stripped by speak())
-    const t = setTimeout(() => speak(line, kidId === 'maverick' ? 0.75 : 0.9), 500);
+    const t = setTimeout(() => speak(line, buddy === 'maverick' ? 0.75 : 0.95), 500);
     return () => { clearTimeout(t); stopSpeak(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mood]);
+  }, [mood, buddy]);
 
   if (!visible) return null;
+
+  if (picking) {
+    return (
+      <Card style={{ marginBottom: 12, textAlign: 'center' }}>
+        <b style={{ fontSize: 18 }}>🦸 Choose your buddy!</b>
+        <div style={{ fontSize: 13, color: '#8a7f9e', margin: '4px 0 12px' }}>Who do you want hanging out with you?</div>
+        <div className="row" style={{ justifyContent: 'center', gap: 10 }}>
+          {Object.entries(MASCOTS).map(([id, m]) => (
+            <button key={id} onClick={() => { setBuddy(id); setPicking(false); }}
+              style={{
+                background: buddy === id ? `${m.color}33` : 'rgba(255,255,255,.1)',
+                border: `3px solid ${buddy === id ? m.color : 'rgba(255,255,255,.2)'}`,
+                borderRadius: 20, padding: 12, cursor: 'pointer', minWidth: 100,
+              }}>
+              <div style={{ fontSize: 44 }}>{m.emoji}</div>
+              <div style={{ fontWeight: 800, fontSize: 14 }}>{m.name}</div>
+              <div style={{ fontSize: 11, color: '#8a7f9e' }}>{m.subtitle || m.personality.split(',')[0]}</div>
+            </button>
+          ))}
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card style={{
@@ -85,8 +135,12 @@ export function Mascot({ kidId = 'manny', mood = 'greeting', onDone }) {
           {mascot.emoji}
         </div>
         <div style={{ flex: 1 }}>
-          <b style={{ color: mascot.color, fontSize: 16 }}>{mascot.name} says:</b>
+          <b style={{ color: mascot.color, fontSize: 16 }}>{mascot.name} {mascot.subtitle ? `(${mascot.subtitle})` : ''} says:</b>
           <div style={{ fontSize: 15, marginTop: 4, lineHeight: 1.5 }}>{message}</div>
+          <button onClick={() => setPicking(true)}
+            style={{ background: 'none', border: 'none', color: mascot.color, textDecoration: 'underline', cursor: 'pointer', fontSize: 12, marginTop: 4, padding: 0 }}>
+            🔄 Change buddy
+          </button>
         </div>
         <button onClick={() => { setVisible(false); stopSpeak(); onDone?.(); }}
           style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', opacity: 0.5 }}>✕</button>
