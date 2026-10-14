@@ -34,6 +34,7 @@ function AuthGate({ onAuth }) {
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [busy, setBusy] = useState(false);
+  const [showParent, setShowParent] = useState(false);
 
   const go = async () => {
     if (!email || !pw) { toast('✏️ Enter email + password'); return; }
@@ -64,48 +65,99 @@ function AuthGate({ onAuth }) {
   const kidLogin = (kidTab) => onAuth({ email: '', guest: true, kidMode: true, kidTab });
 
   return (
-    <div className="screen" style={{ paddingTop: 40 }}>
-      <div style={{ textAlign: 'center', marginBottom: 20 }}>
-        <div style={{ fontSize: 72 }}>🌿</div>
-        <h1 style={{ color: '#1A1040', margin: '8px 0 4px', fontSize: 34 }}>AceHeals</h1>
-        <div style={{ color: '#8a7f9e', fontStyle: 'italic' }}>"Built by a parent, for parents. Real tools, not $500 PDFs."</div>
-        <div style={{ fontSize: 12, marginTop: 6, fontWeight: 700, color: '#1A1040' }}>Sponsored by POTENT ['PRÄDƏKT]®</div>
-      </div>
-      <Card>
-        <div className="row" style={{ marginBottom: 12 }}>
-          <Btn size="sm" color={mode === 'signin' ? 'orange' : 'cream'} onClick={() => setMode('signin')} block>Sign In</Btn>
-          <Btn size="sm" color={mode === 'signup' ? 'orange' : 'cream'} onClick={() => setMode('signup')} block>Sign Up</Btn>
+    <div className="kids-mode" style={{ minHeight: '100vh', padding: '20px 16px 40px', position: 'relative' }}>
+      <div className="screen" style={{ position: 'relative', zIndex: 1, maxWidth: 480, margin: '0 auto' }}>
+        {/* HERO — kids first! */}
+        <div style={{ textAlign: 'center', marginBottom: 16, paddingTop: 20 }}>
+          <div style={{ fontSize: 80, animation: 'kid-bob 2.4s ease-in-out infinite' }}>🦅</div>
+          <h1 style={{
+            fontSize: 38, fontWeight: 900, margin: '8px 0 4px', color: '#fff',
+            textShadow: '0 0 20px #00e5ff, 0 0 40px #b537f2',
+          }}>
+            Manny & Maverick
+          </h1>
+          <div style={{ fontSize: 16, color: '#ffe600', fontWeight: 700, textShadow: '0 0 12px rgba(255,230,0,.5)' }}>
+            ✨ Play. Create. Shine. ✨
+          </div>
+          <div style={{ fontSize: 13, color: '#b9a8e8', marginTop: 8 }}>
+            Games • Music • Photos • Stories — made for YOU!
+          </div>
         </div>
-        <input className="input-gloss" placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ marginBottom: 8 }} />
-        <input className="input-gloss" placeholder="Password" type="password" value={pw} onChange={(e) => setPw(e.target.value)} style={{ marginBottom: 12 }} />
-        <Btn block onClick={go} disabled={busy}>{busy ? '…' : mode === 'signin' ? 'Sign In 💛' : 'Create Account 🎉'}</Btn>
-        <div style={{ textAlign: 'center', margin: '10px 0', color: '#8a7f9e', fontSize: 13 }}>— or —</div>
-        <Btn block color="blue" onClick={google}>🔵 Continue with Google</Btn>
-        <div style={{ textAlign: 'center', marginTop: 12 }}>
-          <button onClick={skip} style={{ background: 'none', border: 'none', color: '#8a7f9e', textDecoration: 'underline', cursor: 'pointer', fontSize: 14 }}>
-            Explore as guest (24h trial, local only)
+
+        {/* KIDS — giant tap targets */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+          <button onClick={() => kidLogin('manny')}
+            style={{
+              background: 'linear-gradient(180deg,#ffe600,#ff9d00)', border: '3px solid rgba(255,255,255,.4)',
+              borderRadius: 28, padding: '28px 12px', cursor: 'pointer',
+              boxShadow: '0 0 30px rgba(255,230,0,.5), 0 6px 0 rgba(0,0,0,.4)',
+              animation: 'kid-bob 2.4s ease-in-out infinite',
+            }}>
+            <div style={{ fontSize: 56 }}>🎮</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#0d0628' }}>Manny</div>
+            <div style={{ fontSize: 12, color: '#0d0628', opacity: 0.7 }}>Tap to play!</div>
+          </button>
+          <button onClick={() => kidLogin('maverick')}
+            style={{
+              background: 'linear-gradient(180deg,#b537f2,#7b2ff7)', border: '3px solid rgba(255,255,255,.4)',
+              borderRadius: 28, padding: '28px 12px', cursor: 'pointer',
+              boxShadow: '0 0 30px rgba(181,55,242,.5), 0 6px 0 rgba(0,0,0,.4)',
+              animation: 'kid-bob 2.4s ease-in-out infinite', animationDelay: '.3s',
+            }}>
+            <div style={{ fontSize: 56 }}>⚡</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#fff' }}>Maverick</div>
+            <div style={{ fontSize: 12, color: '#fff', opacity: 0.7 }}>Tap to play!</div>
           </button>
         </div>
-      </Card>
-      {/* KIDS — big tap targets, straight to play */}
-      <Card style={{ marginTop: 16, background: 'linear-gradient(180deg,#fff8ec,#ffefd6)', borderColor: '#f5d9a8' }}>
-        <div style={{ textAlign: 'center', fontWeight: 900, fontSize: 18, color: '#1A1040', marginBottom: 4 }}>
-          👧👦 Kids — tap your name!
+
+        {/* Feature highlights */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+          {[
+            ['🎮', '22 Games'], ['📷', 'Photo Studio'], ['🎤', 'Song Maker'],
+            ['🌍', 'My World'], ['🦅', 'Giffy'],
+          ].map(([e, l]) => (
+            <div key={l} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 32 }}>{e}</div>
+              <div style={{ fontSize: 11, color: '#b9a8e8', fontWeight: 700 }}>{l}</div>
+            </div>
+          ))}
         </div>
-        <div style={{ textAlign: 'center', fontSize: 13, color: '#8a7f9e', marginBottom: 12 }}>
-          Goes straight to your games. No login needed.
+
+        {/* Parent zone — collapsed by default */}
+        <div style={{ textAlign: 'center' }}>
+          {!showParent ? (
+            <button onClick={() => setShowParent(true)}
+              style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 16, padding: '10px 20px', color: '#b9a8e8', cursor: 'pointer', fontSize: 13 }}>
+              🔒 Grown-ups — tap here
+            </button>
+          ) : (
+            <Card>
+              <div className="row" style={{ marginBottom: 12 }}>
+                <Btn size="sm" color={mode === 'signin' ? 'orange' : 'cream'} onClick={() => setMode('signin')} block>Sign In</Btn>
+                <Btn size="sm" color={mode === 'signup' ? 'orange' : 'cream'} onClick={() => setMode('signup')} block>Sign Up</Btn>
+              </div>
+              <input className="input-gloss" placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ marginBottom: 8 }} />
+              <input className="input-gloss" placeholder="Password" type="password" value={pw} onChange={(e) => setPw(e.target.value)} style={{ marginBottom: 12 }} />
+              <Btn block onClick={go} disabled={busy}>{busy ? '…' : mode === 'signin' ? 'Sign In 💛' : 'Create Account 🎉'}</Btn>
+              <div style={{ textAlign: 'center', margin: '10px 0', color: '#8a7f9e', fontSize: 13 }}>— or —</div>
+              <Btn block color="blue" onClick={google}>🔵 Continue with Google</Btn>
+              <div style={{ textAlign: 'center', marginTop: 12 }}>
+                <button onClick={skip} style={{ background: 'none', border: 'none', color: '#8a7f9e', textDecoration: 'underline', cursor: 'pointer', fontSize: 14 }}>
+                  Explore as guest (24h trial)
+                </button>
+              </div>
+              <div style={{ textAlign: 'center', fontSize: 12, color: '#8a7f9e', marginTop: 12, lineHeight: 1.6 }}>
+                🎁 24-hour free trial • No card required<br />$79 once, own forever — or $12.99/mo<br />
+                <span style={{ fontStyle: 'italic' }}>"Built by a parent, for parents."</span>
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 8 }}>
+                <button onClick={() => setShowParent(false)} style={{ background: 'none', border: 'none', color: '#8a7f9e', cursor: 'pointer', fontSize: 12 }}>
+                  Hide ▲
+                </button>
+              </div>
+            </Card>
+          )}
         </div>
-        <div className="row" style={{ gap: 12 }}>
-          <Btn block color="orange" onClick={() => kidLogin('manny')} style={{ padding: '18px 8px', fontSize: 20 }}>
-            🎮<br />Manny
-          </Btn>
-          <Btn block color="purple" onClick={() => kidLogin('maverick')} style={{ padding: '18px 8px', fontSize: 20 }}>
-            ⚡<br />Maverick
-          </Btn>
-        </div>
-      </Card>
-      <div style={{ textAlign: 'center', fontSize: 12, color: '#8a7f9e', marginTop: 16, lineHeight: 1.6 }}>
-        🎁 24-hour free trial • No card required<br />$79 once, own forever — or $12.99/mo
       </div>
     </div>
   );
