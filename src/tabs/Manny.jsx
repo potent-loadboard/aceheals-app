@@ -17,6 +17,7 @@ function GameShell({ game, onExit }) {
   const [picked, setPicked] = useState(null);
   const [stars, setStars] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [lastEarned, setLastEarned] = useState(2);
   const [correctCount, setCorrectCount] = useState(0);
   const [attemptCount, setAttemptCount] = useState(0);
   const { recordGamePlay, getSuggestedDifficulty } = useKidProfile('manny');
@@ -59,6 +60,7 @@ function GameShell({ game, onExit }) {
       byDiff: { ...s.byDiff, [diff]: (s.byDiff[diff] || 0) + (ok ? 1 : 0) } }));
     if (ok) {
       const earned = { prek: 1, k2: 2, g34: 3, g56: 4, g78: 5 }[diff] || 2;
+      setLastEarned(earned);
       setStars((s) => s + earned);
       setTotalStars((s) => s + earned);
       setStreak((s) => s + 1);
@@ -121,14 +123,31 @@ function GameShell({ game, onExit }) {
           })}
         </div>
         {picked && picked === q.answer && (
-          <div style={{ marginTop: 12, fontSize: 18, fontWeight: 800, color: '#2ECC71' }}>{pick2(PRAISE)}</div>
+          <div style={{
+            marginTop: 16, padding: 20, borderRadius: 20, textAlign: 'center',
+            background: 'linear-gradient(135deg,#1a0f2e,#2a1a4e)',
+            border: '3px solid #ffe600',
+            boxShadow: '0 0 40px rgba(255,230,0,.6), 0 0 80px rgba(255,230,0,.3)',
+            animation: 'celebrate-pop .5s ease-out',
+          }}>
+            <div style={{ fontSize: 64, animation: 'kid-bob 1s ease-in-out infinite' }}>🎉</div>
+            <div style={{ fontSize: 28, fontWeight: 900, color: '#ffe600', textShadow: '0 0 20px rgba(255,230,0,.8)', marginTop: 8 }}>
+              {pick2(PRAISE)}
+            </div>
+            <div style={{ fontSize: 40, marginTop: 8 }}>⭐🌟⭐</div>
+            <div style={{ fontSize: 14, color: '#b9a8e8', marginTop: 4 }}>+{lastEarned} stars!</div>
+          </div>
         )}
         {picked && picked !== q.answer && (
-          <Card style={{ marginTop: 12, background: 'linear-gradient(180deg,#fff8ec,#ffefd6)' }}>
-            <b>{TRY_AGAIN}</b>
-            <div style={{ fontSize: 14, marginTop: 4 }}>💡 {q.hint}</div>
-            <div style={{ marginTop: 8 }}><Btn size="sm" onClick={() => next()}>Try Again 💪</Btn></div>
-          </Card>
+          <div style={{
+            marginTop: 16, padding: 16, borderRadius: 16, textAlign: 'center',
+            background: 'linear-gradient(135deg,#2a1a3e,#1a0f2e)',
+            border: '2px solid #9B59B6',
+          }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#fff' }}>{TRY_AGAIN}</div>
+            <div style={{ fontSize: 14, marginTop: 6, color: '#b9a8e8' }}>💡 {q.hint}</div>
+            <div style={{ marginTop: 10 }}><Btn color="purple" onClick={() => next()} style={{ fontSize: 16, padding: '12px 24px' }}>Try Again 💪</Btn></div>
+          </div>
         )}
         {!picked && (
           <div style={{ marginTop: 10 }}><Btn size="sm" color="cream" onClick={() => setShowHint(!showHint)}>💡 Hint</Btn></div>

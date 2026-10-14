@@ -494,3 +494,10 @@ select.input-gloss { appearance: none; }
   .kids-mode .game-btn > div:first-child { font-size: 40px !important; }
   .game-q-display { font-size: clamp(24px, 8vw, 36px); }
 }
+
+/* Epic correct-answer celebration */
+@keyframes celebrate-pop {
+  0% { transform: scale(.5); opacity: 0; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
