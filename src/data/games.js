@@ -169,14 +169,22 @@ export const GAMES = [
     return { q:'Count the coins! 🪙', display:coinsShown.join('  +  '), options:mc(total,[total-5,total+5,total-10,total+10,total+1,total-1].filter(x=>x>0)), answer:total, hint:`You're rich! Count those coins again! 🤑` }; } },
 { id:'clock', name:'Clock Reader', emoji:'🕐', color:'#3498DB',
   gen(diff){
-    // Young kids: o'clock only. Older: add half-hours
-    const pool = (diff === 'prek' || diff === 'k2')
-      ? CLOCKS.filter(x => x[1].includes("o clock"))
-      : CLOCKS;
+    // Young kids: o'clock only. Older: add half-hours, then quarter hours
+    let pool;
+    if (diff === 'prek') pool = CLOCKS.filter(x => x[1].includes("o clock")).slice(0, 6);
+    else if (diff === 'k2') pool = CLOCKS.filter(x => x[1].includes("o clock"));
+    else if (diff === 'g34') pool = CLOCKS;
+    else pool = CLOCKS;
     const [face,t]=rnd(pool);
-    return { q:'What time is it? ⏰', display:face, bigDisplay: true,
+    // Teaching hint: explain the hands
+    const hour = t.split(' ')[0];
+    const isHalf = t.includes('thirty');
+    const teachHint = isHalf
+      ? `The big hand points DOWN to 6 — that means 30 minutes! The little hand is past ${hour}. So it's ${t}!`
+      : `The big hand points UP to 12 — that means o'clock! The little hand points to ${hour}. So it's ${t}!`;
+    return { q:'What time is it? ⏰', display:face, visualClock: t, bigDisplay: true,
       options:mc(t,pool.map(x=>x[1])), answer:t,
-      hint:`You're a time detective — it's ${t}! 🕵️` };
+      hint: teachHint + ` 🕵️` };
   } },
 { id:'map', name:'Map Explorer', emoji:'🗺️', color:'#FF6B35',
   gen(){ const [e,q,ans]=rnd(MAPS); const pool=['map 🗺️','compass 🧭','mountain 🏔️','ocean 🌊','island 🏝️','desert 🏜️'];

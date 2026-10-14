@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Btn, SectionHead, Loading, Empty, Footer, PBar, Modal, Confetti } from '../components/ui.jsx';
 import { useStored, toast, speak } from '../lib/store.js';
+import VisualClock from '../components/VisualClock.jsx';
 import { GAMES, PRAISE, TRY_AGAIN } from '../data/games.js';
 import PhotoStudio from '../components/PhotoStudio.jsx';
 import StickerWorld from '../components/StickerWorld.jsx';
@@ -162,6 +163,10 @@ function GameShell({ game, onExit }) {
             <div style={{ fontSize: 14, color: '#b9a8e8', marginTop: 12, letterSpacing: 2 }}>
               Remember them all! 🧠
             </div>
+          </div>
+        ) : q.visualClock ? (
+          <div style={{ textAlign: 'center', margin: '16px 0' }}>
+            <VisualClock timeStr={q.visualClock} size={220} />
           </div>
         ) : q.bigDisplay ? (
           <div style={{ fontSize: 120, textAlign: 'center', margin: '16px 0', lineHeight: 1 }}>{q.display}</div>
