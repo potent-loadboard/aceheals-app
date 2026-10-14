@@ -5,6 +5,8 @@ import { hasAccess } from '../lib/paywall.js';
 import { FREQUENCIES, KIDS_CHANNELS, PLAYLISTS, SLEEP_SOUNDS } from '../data/content.js';
 import { playFrequency, playAmbience, stopAudio, drum } from '../lib/audio.js';
 import { saveBeat, listBeats, deleteBeat } from '../lib/beatStore.js';
+import { BUNDLED_BEATS } from '../data/beats.js';
+import SongStudio from '../components/SongStudio.jsx';
 
 function Music({ onDisclaimer }) {
   const paid = hasAccess();
@@ -14,6 +16,8 @@ function Music({ onDisclaimer }) {
   const [favs, setFavs] = useStored('musicFavs', []);
   const [instrumentals, setInstrumentals] = useState([]);
   const [currentBeat, setCurrentBeat] = useState(null);
+  const [musicSec, setMusicSec] = useState('beats');
+  const [songKid, setSongKid] = useState('manny');
   const beatFileRef = React.useRef(null);
   const beatAudioRef = React.useRef(null);
 
@@ -58,6 +62,15 @@ function Music({ onDisclaimer }) {
     setPlaying(null);
   };
 
+  const playBundled = (b) => {
+    stopAudio();
+    if (beatAudioRef.current) { beatAudioRef.current.src = b.file; beatAudioRef.current.play(); }
+    setCurrentBeat(b.id);
+    setPlaying(null);
+  };
+
+  const stopBeat = () => { beatAudioRef.current?.pause(); setCurrentBeat(null); };
+
   const removeBeat = async (id) => {
     await deleteBeat(id);
     setInstrumentals(await listBeats());
@@ -95,21 +108,54 @@ function Music({ onDisclaimer }) {
       <Card style={{ background: 'linear-gradient(180deg,#2a1a4e,#1A1040)', borderColor: '#9B59B6', color: '#fff' }}>
         <div style={{ textAlign: 'center', marginBottom: 10 }}>
           <div style={{ fontSize: 40 }}>🎛️</div>
-          <b style={{ fontSize: 16 }}>Instrumental Library</b>
-          <div style={{ fontSize: 13, opacity: 0.8 }}>Original beats — play, vibe, create. All ages.</div>
+          <b style={{ fontSize: 16 }}>Breez Moira Production</b>
+          <div style={{ fontSize: 13, opacity: 0.8 }}>Original instrumentals — pick one and make a song! All ages.</div>
         </div>
-        <Btn block color="orange" onClick={() => beatFileRef.current?.click()}>📥 Add a Beat</Btn>
+        <div className="row" style={{ gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Btn color="purple" onClick={() => setMusicSec('songs')}>🎤 Song Studio</Btn>
+          <Btn color="orange" onClick={() => beatFileRef.current?.click()}>📥 Add a Beat</Btn>
+        </div>
         <input ref={beatFileRef} type="file" accept="audio/*" style={{ display: 'none' }} onChange={handleBeatUpload} />
         <audio ref={beatAudioRef} style={{ display: 'none' }} onEnded={() => setCurrentBeat(null)} />
       </Card>
+
+      {musicSec === 'songs' ? (
+        <div style={{ marginTop: 10 }}>
+          <div className="row" style={{ marginBottom: 10, gap: 6 }}>
+            <Btn size="sm" color={songKid === 'manny' ? 'orange' : 'cream'} onClick={() => setSongKid('manny')}>🎮 Manny</Btn>
+            <Btn size="sm" color={songKid === 'maverick' ? 'orange' : 'cream'} onClick={() => setSongKid('maverick')}>⚡ Maverick</Btn>
+            <div style={{ flex: 1 }} />
+            <Btn size="sm" color="cream" onClick={() => setMusicSec('beats')}>← Beats</Btn>
+          </div>
+          <SongStudio kidId={songKid} kidName={songKid === 'manny' ? 'Manny' : 'Maverick'} />
+        </div>
+      ) : (
+      <>
+      {/* Bundled beats */}
+      <div style={{ marginTop: 8 }}>
+        {BUNDLED_BEATS.map((b) => (
+          <div key={b.id} className="check-item" style={currentBeat === b.id ? { borderColor: '#9B59B6', borderWidth: 2 } : {}}>
+            <div style={{ fontSize: 28 }}>{b.mood}</div>
+            <div style={{ flex: 1 }} onClick={() => playBundled(b)}>
+              <b style={{ color: '#1A1040' }}>{b.name}</b>
+              <div style={{ fontSize: 12, color: '#8a7f9e' }}>{b.bpm} BPM • {b.key} {currentBeat === b.id ? '• ▶️ playing' : ''}</div>
+            </div>
+            {currentBeat === b.id && (
+              <Btn size="sm" color="red" onClick={stopBeat}>⏹️</Btn>
+            )}
+          </div>
+        ))}
+      </div>
+      {/* Uploaded beats */}
       {instrumentals.length > 0 && (
         <div style={{ marginTop: 8 }}>
+          <b>📥 Uploaded</b>
           {instrumentals.map((b) => (
             <div key={b.id} className="check-item" style={currentBeat === b.id ? { borderColor: '#9B59B6', borderWidth: 2 } : {}}>
               <div style={{ fontSize: 28 }}>🎧</div>
               <div style={{ flex: 1 }} onClick={() => playBeat(b)}>
                 <b style={{ color: '#1A1040' }}>{b.name}</b>
-                <div style={{ fontSize: 12, color: '#8a7f9e' }}>{currentBeat === b.id ? '▶️ Now playing — tap to replay' : 'Tap to play'}</div>
+                <div style={{ fontSize: 12, color: '#8a7f9e' }}>{currentBeat === b.id ? '▶️ Now playing' : 'Tap to play'}</div>
               </div>
               {currentBeat === b.id && (
                 <Btn size="sm" color="red" onClick={() => { beatAudioRef.current?.pause(); setCurrentBeat(null); }}>⏹️</Btn>
@@ -119,10 +165,7 @@ function Music({ onDisclaimer }) {
           ))}
         </div>
       )}
-      {instrumentals.length === 0 && (
-        <div style={{ fontSize: 13, color: '#8a7f9e', textAlign: 'center', margin: '8px 0 16px' }}>
-          No beats yet — upload your first instrumental above 👆
-        </div>
+      </>
       )}
 
       <SectionHead title="🎼 Calming Frequencies" />
