@@ -9,6 +9,8 @@ import { CALM_SOUNDS, SLEEP_SOUNDS } from '../data/content.js';
 import { playAmbience, stopAudio, drum, KITS, exportBeatToWav } from '../lib/audio.js';
 import { DISCLAIMER } from '../lib/disclaimer.js';
 import ASL from '../components/ASL.jsx';
+import StickerWorld from '../components/StickerWorld.jsx';
+import { Mascot } from '../components/Mascot.jsx';
 
 // ================= AAC BOARD =================
 function AACBoard({ largeMode, highContrast }) {
@@ -861,7 +863,7 @@ const SECTIONS = [
   ['aac', '💬 AAC Board'], ['schedule', '📋 Schedule'], ['calm', '🌊 Calm Down'],
   ['timer', '⏱️ Timer'], ['tokens', '⭐ Tokens'], ['meltdown', '📝 Behavior'],
   ['stories', '📖 Stories'], ['hiphop', '🎵 Hip Hop'], ['sensory', '🤲 Sensory'], ['speech', '🗣️ Speech'],
-  ['asl', '🖐️ ASL'],
+  ['asl', '🖐️ ASL'], ['world', '🌍 My World'],
 ];
 
 export default function Maverick({ onDisclaimer }) {
@@ -883,6 +885,7 @@ export default function Maverick({ onDisclaimer }) {
           <Btn key={id} size="sm" color={sec === id ? 'orange' : 'cream'} onClick={() => { setSec(id); stopSpeak(); stopAudio(); }} style={{ whiteSpace: 'nowrap' }}>{label}</Btn>
         ))}
       </div>
+      {sec === 'aac' && <Mascot kidId="maverick" mood="greeting" />}
 
       {sec === 'aac' && <AACBoard largeMode={largeMode} highContrast={highContrast} />}
       {sec === 'schedule' && <Schedule />}
@@ -895,6 +898,7 @@ export default function Maverick({ onDisclaimer }) {
       {sec === 'sensory' && <SensoryDiet />}
       {sec === 'speech' && <Speech />}
       {sec === 'asl' && <ASL />}
+      {sec === 'world' && <StickerWorld kidId="maverick" />}
 
       <Footer onDisclaimer={onDisclaimer} />
     </div>

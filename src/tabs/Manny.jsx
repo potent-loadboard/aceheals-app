@@ -3,6 +3,9 @@ import { Card, Btn, SectionHead, Loading, Empty, Footer, PBar, Modal, Confetti }
 import { useStored, toast, speak } from '../lib/store.js';
 import { GAMES, PRAISE, TRY_AGAIN } from '../data/games.js';
 import PhotoStudio from '../components/PhotoStudio.jsx';
+import StickerWorld from '../components/StickerWorld.jsx';
+import StoryMaker from '../components/StoryMaker.jsx';
+import { Mascot } from '../components/Mascot.jsx';
 
 // ================= GAME SHELL =================
 function GameShell({ game, onExit }) {
@@ -214,12 +217,13 @@ export default function Manny({ onDisclaimer }) {
     <div className="screen">
       <SectionHead title="🎮 Manny's World" right={<span className="streak-badge">⭐ {stars}</span>} />
       {!game && (
-        <div className="row" style={{ marginBottom: 12, gap: 6 }}>
-          {[['games', '🎮 Games'], ['camera', '📷 Camera'], ['rewards', '🏆 Rewards'], ['report', '📊 Report']].map(([id, l]) => (
+        <div className="row" style={{ marginBottom: 12, gap: 6, flexWrap: 'wrap' }}>
+          {[['games', '🎮 Games'], ['camera', '📷 Camera'], ['story', '📖 Story'], ['world', '🌍 My World'], ['rewards', '🏆 Rewards'], ['report', '📊 Report']].map(([id, l]) => (
             <Btn key={id} size="sm" color={sec === id ? 'orange' : 'cream'} onClick={() => setSec(id)}>{l}</Btn>
           ))}
         </div>
       )}
+      {sec === 'games' && !game && <Mascot kidId="manny" mood="greeting" />}
 
       {sec === 'games' && !active && (
         <div className="grid2">
@@ -234,6 +238,8 @@ export default function Manny({ onDisclaimer }) {
       )}
       {sec === 'games' && active && <GameShell game={active} onExit={() => setGame(null)} />}
       {sec === 'camera' && <PhotoStudio />}
+      {sec === 'story' && <StoryMaker />}
+      {sec === 'world' && <StickerWorld kidId="manny" />}
       {sec === 'rewards' && <Rewards />}
       {sec === 'report' && <Report />}
 
