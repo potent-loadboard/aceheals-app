@@ -20,8 +20,8 @@ const SCIENCE = [
 ];
 const MAPS = [['🗺️','Which shows the whole world?','map'],['🧭','What points north?','compass'],['🏔️','What is a tall rocky land?','mountain'],['🌊','What is a big body of salt water?','ocean'],['🏝️','What is land with water all around?','island'],['🏜️','What is a hot sandy place?','desert']];
 const OPPOSITES = [['☀️ day','night 🌙'],['🔥 hot','cold 🧊'],['📢 loud','quiet 🔇'],['⚡ fast','slow 🐢'],['😊 happy','sad 😢'],['⬆️ up','down ⬇️'],['💡 light','dark 🌑'],['🐘 big','small 🐭']];
-const RHYMES = [['🐱 cat','hat 🎩'],['🐶 dog','frog 🐸'],['🌙 moon','spoon 🥄'],['⭐ star','car 🚗'],['🐝 bee','tree 🌳'],['🦆 duck','truck 🚚'],['🐷 pig','wig 💇'],['🦁 lion','? '] ];
-const CLOCKS = ['1:00','2:30','3:15','4:45','5:00','6:30','7:15','8:00','9:30','10:15','11:45','12:00'];
+const RHYMES = [['🐱 cat','hat 🎩'],['🐶 dog','frog 🐸'],['🌙 moon','spoon 🥄'],['⭐ star','car 🚗'],['🐝 bee','tree 🌳'],['🦆 duck','truck 🚚'],['🐷 pig','wig 💇'],['🐸 frog','log 🪵'],['🦉 owl','towel 🧻'],['🐰 bun','sun 🌞'] ];
+const CLOCKS = [['🕐','1 o clock'],['🕑','2 o clock'],['🕒','3 o clock'],['🕓','4 o clock'],['🕔','5 o clock'],['🕕','6 o clock'],['🕖','7 o clock'],['🕗','8 o clock'],['🕘','9 o clock'],['🕙','10 o clock'],['🕚','11 o clock'],['🕛','12 o clock'],['🕜','1 thirty'],['🕝','2 thirty'],['🕞','3 thirty'],['🕟','4 thirty'],['🕠','5 thirty'],['🕡','6 thirty'],['🕢','7 thirty'],['🕣','8 thirty'],['🕤','9 thirty'],['🕥','10 thirty'],['🕦','11 thirty'],['🕧','12 thirty']];
 
 function numQ(diff, op) {
   const [lo, hi] = diff === 'easy' ? [1, 10] : diff === 'medium' ? [1, 20] : [1, 50];
@@ -74,20 +74,21 @@ export const GAMES = [
   gen(){ const L=rnd(LETTERS); const lower=L.toLowerCase();
     return { q:'Match the letters! 🔤', display:L+' = ?', options:mc(lower,LETTERS.map(x=>x.toLowerCase())), answer:lower, hint:`Big ${L}, little ${lower} — they're best friends!` }; } },
 { id:'rhyme', name:'Rhyme Time', emoji:'🎵', color:'#9B59B6',
-  gen(){ const [a,b]=rnd(RHYMES.filter(r=>!r[1].includes('?'))); const ans=b.split(' ')[1]||b;
-    return { q:`What rhymes with ${a}?`, display:a+' 🎤', options:mc(ans,['hat','frog','spoon','car','tree','truck','wig']), answer:ans, hint:`${a} and ${b} rhyme — listen to the ending sound!` }; } },
+  gen(){ const [a,b]=rnd(RHYMES); const ans=b.split(' ')[0];
+    return { q:`What rhymes with ${a}? 🎤`, display:a, options:mc(ans,RHYMES.map(r=>r[1].split(' ')[0])), answer:ans, hint:`${a} and ${b} rhyme — sing it out loud! 🎶` }; } },
 { id:'opposites', name:'Opposites', emoji:'↔️', color:'#F1C40F',
-  gen(){ const [a,b]=rnd(OPPOSITES); const ans=b.split(' ')[1]||b;
-    return { q:`What's the opposite of ${a}?`, display:a+' ↔️ ?', options:mc(ans,['night','cold','quiet','slow','sad','down','dark','small']), answer:ans, hint:`Think about the flip side — it's ${b}!` }; } },
+  gen(){ const [a,b]=rnd(OPPOSITES); const ans=b.split(' ')[1]||b.split(' ')[0];
+    return { q:`What's the opposite of ${a}? 🤔`, display:a, options:mc(ans,OPPOSITES.map(o=>o[1].split(' ')[1]||o[1].split(' ')[0])), answer:ans, hint:`Think about the flip side — it's ${b}! 🔄` }; } },
 { id:'money', name:'Money Counter', emoji:'💰', color:'#2ECC71',
   gen(diff){ const coins=[['🟤',1,'penny'],['⚪',5,'nickel'],['🔘',10,'dime'],['⭕',25,'quarter']];
     const n=diff==='easy'?2:diff==='medium'?3:4; let total=0; let coinsShown=[];
     for(let i=0;i<n;i++){ const [emoji,v,name]=rnd(coins); total+=v; coinsShown.push(`${emoji}${v}¢`); }
     return { q:'Count the coins! 🪙', display:coinsShown.join('  +  '), options:mc(total,[total-5,total+5,total-10,total+10,total+1,total-1].filter(x=>x>0)), answer:total, hint:`You're rich! Count those coins again! 🤑` }; } },
 { id:'clock', name:'Clock Reader', emoji:'🕐', color:'#3498DB',
-  gen(){ const t=rnd(CLOCKS); return { q:'What time is it? ⏰', display:'🕐 '+t, options:mc(t,CLOCKS), answer:t, hint:`You're a time detective — it's ${t}!` }; } },
+  gen(){ const [face,t]=rnd(CLOCKS); return { q:'What time is it? ⏰', display:face, options:mc(t,CLOCKS.map(x=>x[1])), answer:t, hint:`You're a time detective — it's ${t}! 🕵️` }; } },
 { id:'map', name:'Map Explorer', emoji:'🗺️', color:'#FF6B35',
-  gen(){ const [e,q,ans]=rnd(MAPS); return { q, display:e, options:mc(ans,MAPS.map(m=>m[2])), answer:ans, hint:`The answer is "${ans}" — great exploring!` }; } },
+  gen(){ const [e,q,ans]=rnd(MAPS); const pool=['map 🗺️','compass 🧭','mountain 🏔️','ocean 🌊','island 🏝️','desert 🏜️'];
+    return { q:q+' 🧭', display:e, options:mc(ans+' '+e,MAPS.map(m=>m[2]+' '+m[0])), answer:ans+' '+e, hint:`You're a great explorer! It's the ${ans}! 🗺️` }; } },
 { id:'wordbuild', name:'Word Builder', emoji:'🧱', color:'#E91E8C',
   gen(){ const words=[['🐱','CAT'],['🐶','DOG'],['🌞','SUN'],['🌙','MOON'],['⭐','STAR'],['🐝','BEE'],['🌳','TREE'],['🐟','FISH']];
     const [e,w]=rnd(words); const missing=w[ri(0,w.length-1)];
@@ -103,11 +104,14 @@ export const GAMES = [
     const s=rnd(seqs); const order=shuffle(s);
     return { q:'What happens first? 📖', display:order.map(x=>x[0]).join('  '), options:mc(s[0][1],s.map(x=>x[1])), answer:s[0][1], hint:`First: ${s[0][0]} ${s[0][1]}! You're telling the story!` }; } },
 { id:'science', name:'Science Lab', emoji:'🔬', color:'#2ECC71',
-  gen(){ const [e,q,ans]=rnd(SCIENCE); const pool=['water','sunlight','bones','heart','moon','fire','air','soil'];
-    return { q, display:e, options:mc(ans,pool), answer:ans, hint:`Think like a scientist — it's ${ans}!` }; } },
+  gen(){ const [e,q,ans]=rnd(SCIENCE); const pool=[['💧','water'],['☀️','sunlight'],['🦴','bones'],['❤️','heart'],['🌙','moon'],['🔥','fire'],['🌬️','air'],['🌱','soil']];
+    return { q:q+' 🔬', display:e, options:mc(ans+' '+e,pool.map(p=>p[1]+' '+p[0])), answer:ans+' '+e, hint:`Think like a scientist — it's ${ans}! 🧪` }; } },
 { id:'memory', name:'Memory Flip', emoji:'🃏', color:'#1A1040',
-  gen(){ const pair=rnd([['🐶','dog'],['🐱','cat'],['🦁','lion'],['🐸','frog'],['🦋','butterfly'],['🐢','turtle']]);
-    return { q:'Remember! 🧠', display:pair[0]+' = ?', options:mc(pair[1],['dog','cat','lion','frog','butterfly','turtle']), answer:pair[1], hint:`${pair[0]} is the ${pair[1]} — make a silly picture in your brain!` }; } },
+  gen(diff){ const pool=['🐶','🐱','🦁','🐸','🦋','🐢','🐘','🦒','🐳','🦜','🐝','🐵'];
+    const n=diff==='easy'?3:diff==='medium'?4:5;
+    const shown=shuffle(pool).slice(0,n); const missing=rnd(shown);
+    const rest=shown.filter(e=>e!==missing);
+    return { q:'Which one is missing? 🧠', display:'👀 '+rest.join('  ')+'  ❓', options:mc(missing,pool), answer:missing, hint:`Look at the group — which friend is hiding? 🙈` }; } },
 ];
 
 // ASL: 15 survival signs (per spec)

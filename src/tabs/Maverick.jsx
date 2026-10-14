@@ -8,6 +8,7 @@ import { HIP_HOP_SESSIONS } from '../data/content.js';
 import { CALM_SOUNDS, SLEEP_SOUNDS } from '../data/content.js';
 import { playAmbience, stopAudio, drum, KITS } from '../lib/audio.js';
 import { DISCLAIMER } from '../lib/disclaimer.js';
+import ASL from '../components/ASL.jsx';
 
 // ================= AAC BOARD =================
 function AACBoard({ largeMode, highContrast }) {
@@ -805,6 +806,7 @@ const SECTIONS = [
   ['aac', '💬 AAC Board'], ['schedule', '📋 Schedule'], ['calm', '🌊 Calm Down'],
   ['timer', '⏱️ Timer'], ['tokens', '⭐ Tokens'], ['meltdown', '📝 Behavior'],
   ['stories', '📖 Stories'], ['hiphop', '🎵 Hip Hop'], ['sensory', '🤲 Sensory'], ['speech', '🗣️ Speech'],
+  ['asl', '🖐️ ASL'],
 ];
 
 export default function Maverick({ onDisclaimer }) {
@@ -837,6 +839,7 @@ export default function Maverick({ onDisclaimer }) {
       {sec === 'hiphop' && <HipHop />}
       {sec === 'sensory' && <SensoryDiet />}
       {sec === 'speech' && <Speech />}
+      {sec === 'asl' && <ASL />}
 
       <Footer onDisclaimer={onDisclaimer} />
     </div>
