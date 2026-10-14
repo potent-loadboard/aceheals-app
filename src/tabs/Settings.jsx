@@ -4,6 +4,7 @@ import { useStored, toast } from '../lib/store.js';
 import { getAccess, setAccess, trialHoursLeft, trialActive, restorePurchase, PLANS, startCheckout } from '../lib/paywall.js';
 import { supabase, sb, supabaseConfigured } from '../lib/supabase.js';
 import { DISCLAIMER } from '../lib/disclaimer.js';
+import { hasPin, setPin } from '../lib/parental.js';
 
 function Settings({ onDisclaimer, user, onLogout }) {
   const [kids, setKids] = useStored('kids', [
@@ -18,6 +19,18 @@ function Settings({ onDisclaimer, user, onLogout }) {
   const [notifWins, setNotifWins] = useStored('notifWins', true);
   const [deaf, setDeaf] = useStored('deafMode', false);
   const [hc, setHc] = useStored('highContrast', false);
+  const [newPin, setNewPin] = useState('');
+  const [, forcePin] = useState(0);
+
+  const savePin = () => {
+    if (setPin(newPin)) {
+      toast('🔒 Parent PIN set! Kids Mode is protected 💛');
+      setNewPin('');
+      forcePin((x) => x + 1);
+    } else {
+      toast('✏️ Enter a 4-digit PIN');
+    }
+  };
   const [lg, setLg] = useStored('largeText', false);
   const [lang, setLang] = useStored('lang', 'English');
   const [showSub, setShowSub] = useState(false);
@@ -174,6 +187,23 @@ function Settings({ onDisclaimer, user, onLogout }) {
         <div style={{ fontSize: 13, color: '#8a7f9e', margin: '4px 0 8px' }}>Share reports with your care team.</div>
         <div className="row">
           <Btn size="sm" color="blue" onClick={exportData}>📄 Export PDF for Doctor / IEP</Btn>
+        </div>
+      </Card>
+
+      <SectionHead title="🔒 Parent PIN" />
+      <Card>
+        <b>Kids Mode protection</b>
+        <div style={{ fontSize: 13, color: '#8a7f9e', margin: '4px 0 8px' }}>
+          {hasPin()
+            ? '✅ PIN is set. Kids stay in their safe zone until you enter it.'
+            : 'Set a 4-digit PIN. Kids tap their name to play — only you can unlock the grown-up sections.'}
+        </div>
+        <div className="row" style={{ gap: 8 }}>
+          <input className="input-gloss" type="password" inputMode="numeric" maxLength={4}
+            placeholder={hasPin() ? 'New 4-digit PIN' : 'Choose 4-digit PIN'}
+            value={newPin} onChange={(e) => setNewPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+            style={{ textAlign: 'center', fontSize: 20, letterSpacing: 8, flex: 1 }} />
+          <Btn color="orange" onClick={savePin}>{hasPin() ? 'Change' : 'Set PIN'}</Btn>
         </div>
       </Card>
 

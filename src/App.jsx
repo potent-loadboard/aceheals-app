@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { DisclaimerModal, BreakButton, Toasts, Btn, Card } from './components/ui.jsx';
+import { DisclaimerModal, BreakButton, Toasts, Btn, Card, Modal } from './components/ui.jsx';
 import { supabase, sb, supabaseConfigured } from './lib/supabase.js';
 import { useStored, toast } from './lib/store.js';
 import { handlePaymentReturn, trialActive } from './lib/paywall.js';
+import { hasPin, verifyPin, KID_TABS } from './lib/parental.js';
 import Home from './tabs/Home.jsx';
 import Heal from './tabs/Heal.jsx';
 import Maverick from './tabs/Maverick.jsx';
@@ -56,6 +57,7 @@ function AuthGate({ onAuth }) {
   };
 
   const skip = () => onAuth({ email: '', guest: true });
+  const kidLogin = (kidTab) => onAuth({ email: '', guest: true, kidMode: true, kidTab });
 
   return (
     <div className="screen" style={{ paddingTop: 40 }}>
@@ -81,6 +83,23 @@ function AuthGate({ onAuth }) {
           </button>
         </div>
       </Card>
+      {/* KIDS — big tap targets, straight to play */}
+      <Card style={{ marginTop: 16, background: 'linear-gradient(180deg,#fff8ec,#ffefd6)', borderColor: '#f5d9a8' }}>
+        <div style={{ textAlign: 'center', fontWeight: 900, fontSize: 18, color: '#1A1040', marginBottom: 4 }}>
+          👧👦 Kids — tap your name!
+        </div>
+        <div style={{ textAlign: 'center', fontSize: 13, color: '#8a7f9e', marginBottom: 12 }}>
+          Goes straight to your games. No login needed.
+        </div>
+        <div className="row" style={{ gap: 12 }}>
+          <Btn block color="orange" onClick={() => kidLogin('manny')} style={{ padding: '18px 8px', fontSize: 20 }}>
+            🎮<br />Manny
+          </Btn>
+          <Btn block color="purple" onClick={() => kidLogin('maverick')} style={{ padding: '18px 8px', fontSize: 20 }}>
+            ⚡<br />Maverick
+          </Btn>
+        </div>
+      </Card>
       <div style={{ textAlign: 'center', fontSize: 12, color: '#8a7f9e', marginTop: 16, lineHeight: 1.6 }}>
         🎁 24-hour free trial • No card required<br />$79 once, own forever — or $12.99/mo
       </div>
@@ -95,6 +114,9 @@ export default function App() {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [breakMode, setBreakMode] = useState(false);
+  const [kidMode, setKidMode] = useState(false);
+  const [showPinGate, setShowPinGate] = useState(false);
+  const [pinInput, setPinInput] = useState('');
   const [deaf] = useStored('deafMode', false);
   const [hc] = useStored('highContrast', false);
   const [lg] = useStored('largeText', false);
@@ -126,7 +148,38 @@ export default function App() {
   const logout = async () => {
     try { supabaseConfigured && await supabase.auth.signOut(); } catch {}
     setUser(null);
+    setKidMode(false);
     setTab('home');
+  };
+
+  // Enter kids mode when a kid taps their name on the login screen
+  useEffect(() => {
+    if (user?.kidMode) {
+      setKidMode(true);
+      setTab(user.kidTab || 'manny');
+    }
+  }, [user]);
+
+  // Grown-ups gate: PIN required to leave kids mode
+  const exitKidMode = () => {
+    if (!hasPin()) {
+      toast('🔒 Set a parent PIN in Settings first');
+      return;
+    }
+    setPinInput('');
+    setShowPinGate(true);
+  };
+
+  const submitPin = () => {
+    if (verifyPin(pinInput)) {
+      setShowPinGate(false);
+      setKidMode(false);
+      setTab('home');
+      toast('👋 Welcome back, grown-up!');
+    } else {
+      toast('❌ Wrong PIN — try again');
+      setPinInput('');
+    }
   };
 
   const goBreak = () => {
@@ -201,13 +254,33 @@ export default function App() {
 
       <BreakButton onBreak={goBreak} />
 
+      {showPinGate && (
+        <Modal onClose={() => setShowPinGate(false)} title="🔒 Grown-ups only">
+          <div style={{ textAlign: 'center', marginBottom: 12 }}>
+            <div style={{ fontSize: 14, color: '#8a7f9e' }}>Enter your 4-digit parent PIN to leave Kids Mode.</div>
+          </div>
+          <input className="input-gloss" type="password" inputMode="numeric" maxLength={4}
+            placeholder="••••" value={pinInput}
+            onChange={(e) => setPinInput(e.target.value.replace(/\D/g, '').slice(0, 4))}
+            onKeyDown={(e) => e.key === 'Enter' && submitPin()}
+            style={{ textAlign: 'center', fontSize: 28, letterSpacing: 12, marginBottom: 12 }} />
+          <Btn block onClick={submitPin}>Unlock 🔓</Btn>
+        </Modal>
+      )}
+
       <nav className="tabbar">
-        {TABS.map((t) => (
+        {(kidMode ? TABS.filter((t) => KID_TABS.includes(t.id)) : TABS).map((t) => (
           <button key={t.id} className={tab === t.id ? 'active' : ''} onClick={() => { setTab(t.id); window.scrollTo(0, 0); }}>
             <span className="tico">{t.emoji}</span>
             <span>{t.label}</span>
           </button>
         ))}
+        {kidMode && (
+          <button onClick={exitKidMode} style={{ opacity: 0.75 }}>
+            <span className="tico">🔒</span>
+            <span>Grown-ups</span>
+          </button>
+        )}
       </nav>
 
       <Toasts />
