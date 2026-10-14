@@ -75,9 +75,24 @@ function GameShell({ game, onExit }) {
       <div className="row" style={{ marginBottom: 10 }}>
         <Btn color="blue" onClick={onExit} style={{ fontSize: 18, padding: '12px 20px' }}>← Back</Btn>
         <div style={{ flex: 1 }} />
-        {[['easy', '😊 Easy'], ['medium', '🙂 Medium'], ['hard', '🤩 Hard']].map(([d, l]) => (
-          <Btn key={d} size="sm" color={diff === d ? 'orange' : 'cream'} onClick={() => { setDiff(d); next(d); }}>{l}</Btn>
-        ))}
+        <div className="row" style={{ gap: 6 }}>
+          {[
+            ['easy', '⭐ Level 1', '#2ECC71'],
+            ['medium', '⭐⭐ Level 2', '#F1C40F'],
+            ['hard', '⭐⭐⭐ Level 3', '#E91E8C'],
+          ].map(([d, l, col]) => (
+            <button key={d} onClick={() => { setDiff(d); next(d); }}
+              style={{
+                background: diff === d ? col : 'rgba(255,255,255,.08)',
+                border: `2px solid ${diff === d ? col : 'rgba(255,255,255,.2)'}`,
+                borderRadius: 16, padding: '10px 14px', cursor: 'pointer',
+                color: diff === d ? '#0d0628' : '#fff', fontWeight: 900, fontSize: 14,
+                boxShadow: diff === d ? `0 0 16px ${col}` : 'none',
+              }}>
+              {l}
+            </button>
+          ))}
+        </div>
       </div>
 
       <Card style={{ textAlign: 'center', padding: 24 }}>
