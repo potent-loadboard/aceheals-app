@@ -459,3 +459,38 @@ select.input-gloss { appearance: none; }
 /* Dim mode */
 .sensory-dim { filter: brightness(0.75); }
 .sensory-dim.kids-mode::before { opacity: 0.25; }
+
+/* ============ TABLET + RESPONSIVE ============ */
+/* Game question display scales with screen */
+.game-q-display {
+  font-size: clamp(28px, 7vw, 52px);
+  margin: 10px 0; line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+/* Pattern sequences wrap cleanly */
+.game-q-display.pattern {
+  letter-spacing: 4px;
+  line-height: 1.6;
+}
+/* Tablet: wider layout, comfortable spacing */
+@media (min-width: 768px) {
+  .screen { max-width: 800px; padding: 24px 24px 120px; }
+  .grid2 { gap: 14px; }
+  .kids-mode .game-btn { min-height: 140px !important; }
+  .game-q-display { font-size: clamp(32px, 5vw, 56px); }
+  /* Section tab rows scroll horizontally instead of wrapping awkwardly */
+  .kids-mode .row { flex-wrap: wrap; }
+}
+/* Large tablet / small desktop */
+@media (min-width: 1024px) {
+  .screen { max-width: 900px; }
+  /* 3-column game grid on wide screens */
+  .kids-mode .grid2 { grid-template-columns: repeat(3, 1fr); }
+}
+/* Small phones: tighten up */
+@media (max-width: 380px) {
+  .kids-mode .game-btn { min-height: 100px !important; }
+  .kids-mode .game-btn > div:first-child { font-size: 40px !important; }
+  .game-q-display { font-size: clamp(24px, 8vw, 36px); }
+}

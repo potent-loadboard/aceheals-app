@@ -87,7 +87,7 @@ function GameShell({ game, onExit }) {
           <Btn size="sm" color={timerOn ? 'blue' : 'cream'} onClick={() => { setTimerOn(!timerOn); setSecs(0); }}>⏱️ {timerOn ? secs + 's' : 'Timer'}</Btn>
         </div>
         <div style={{ fontSize: 15, fontWeight: 700, color: '#8a7f9e', marginBottom: 8 }}>{q.q}</div>
-        <div style={{ fontSize: q.display.length > 20 ? 30 : 52, margin: '10px 0', lineHeight: 1.3 }}>{q.display}</div>
+        <div className={`game-q-display${game.id === 'pattern' ? ' pattern' : ''}`}>{q.display}</div>
         <div className="grid2" style={{ marginTop: 14 }}>
           {q.options.map((opt) => {
             const isAns = opt === q.answer;
