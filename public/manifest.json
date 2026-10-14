@@ -1,1 +1,25 @@
-{"background_color":"#FFF8F0","description":"Family wellness support app built by a parent, for parents. Real tools, not $500 PDFs.","display":"standalone","icons":[{"purpose":"any","sizes":"any","src":"/icon.svg","type":"image/svg+xml"}],"name":"AceHeals","orientation":"portrait","scope":"/","short_name":"AceHeals","start_url":"/","theme_color":"#FF6B35"}
+{
+  "background_color": "#FFF8F0",
+  "description": "Family wellness support app built by a parent, for parents. Real tools, not $500 PDFs.",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "name": "AceHeals",
+  "orientation": "portrait",
+  "scope": "/",
+  "short_name": "AceHeals",
+  "start_url": "/",
+  "theme_color": "#FF6B35"
+}
