@@ -3,7 +3,7 @@ import { DisclaimerModal, BreakButton, Toasts, Btn, Card, Modal } from './compon
 import { supabase, sb, supabaseConfigured } from './lib/supabase.js';
 import { useStored, toast } from './lib/store.js';
 import { handlePaymentReturn, trialActive } from './lib/paywall.js';
-import { hasPin, verifyPin, KID_TABS } from './lib/parental.js';
+import { hasPin, setPin, verifyPin, KID_TABS } from './lib/parental.js';
 import Home from './tabs/Home.jsx';
 import Heal from './tabs/Heal.jsx';
 import Maverick from './tabs/Maverick.jsx';
@@ -172,6 +172,7 @@ export default function App() {
   const [breakMode, setBreakMode] = useState(false);
   const [kidMode, setKidMode] = useState(false);
   const [showPinGate, setShowPinGate] = useState(false);
+  const [showPinSetup, setShowPinSetup] = useState(false);
   const [pinInput, setPinInput] = useState('');
   const [deaf] = useStored('deafMode', false);
   const [hc] = useStored('highContrast', false);
@@ -232,11 +233,24 @@ export default function App() {
   // Grown-ups gate: PIN required to leave kids mode
   const exitKidMode = () => {
     if (!hasPin()) {
-      toast('🔒 Set a parent PIN in Settings first');
+      // No PIN yet — let parent set one up right here
+      setPinInput('');
+      setShowPinSetup(true);
       return;
     }
     setPinInput('');
     setShowPinGate(true);
+  };
+
+  const submitPinSetup = () => {
+    if (setPin(pinInput)) {
+      setShowPinSetup(false);
+      toast('🔒 Parent PIN set! You\'re all set.');
+      setPinInput('');
+      setShowPinGate(true); // now prompt to unlock
+    } else {
+      toast('🔒 Enter 4 digits for your PIN');
+    }
   };
 
   const submitPin = () => {
@@ -339,6 +353,24 @@ export default function App() {
             onKeyDown={(e) => e.key === 'Enter' && submitPin()}
             style={{ textAlign: 'center', fontSize: 28, letterSpacing: 12, marginBottom: 12 }} />
           <Btn block onClick={submitPin}>Unlock 🔓</Btn>
+        </Modal>
+      )}
+
+      {showPinSetup && (
+        <Modal onClose={() => setShowPinSetup(false)} title="🔒 Set Parent PIN">
+          <div style={{ textAlign: 'center', marginBottom: 12 }}>
+            <div style={{ fontSize: 40 }}>👨‍👩‍👧</div>
+            <div style={{ fontSize: 14, color: '#8a7f9e', marginTop: 8 }}>
+              Create a 4-digit PIN to protect grown-up areas.<br />
+              Kids won't be able to leave Kids Mode without it!
+            </div>
+          </div>
+          <input className="input-gloss" type="password" inputMode="numeric" maxLength={4}
+            placeholder="••••" value={pinInput}
+            onChange={(e) => setPinInput(e.target.value.replace(/\D/g, '').slice(0, 4))}
+            onKeyDown={(e) => e.key === 'Enter' && submitPinSetup()}
+            style={{ textAlign: 'center', fontSize: 28, letterSpacing: 12, marginBottom: 12 }} />
+          <Btn block onClick={submitPinSetup}>Set PIN ✅</Btn>
         </Modal>
       )}
 
