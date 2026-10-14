@@ -3,10 +3,12 @@ import { SectionHead, Card, Btn } from '../components/ui.jsx';
 import HardMoment from '../components/HardMoment.jsx';
 import ParentReset from '../components/ParentReset.jsx';
 import RoutineBuilder from '../components/RoutineBuilder.jsx';
+import TriggerTracker from '../components/TriggerTracker.jsx';
 import { useKidProfile, useParentProfile } from '../lib/kidProfile.js';
 
 export default function Parents() {
   const [sec, setSec] = useState('help');
+  const [trigKid, setTrigKid] = useState('manny');
   const manny = useKidProfile('manny');
   const maverick = useKidProfile('maverick');
   const { parent, update } = useParentProfile();
@@ -22,6 +24,7 @@ export default function Parents() {
           ['help', '🆘 Hard Moment'],
           ['reset', '🧘 My Reset'],
           ['routines', '📋 Routines'],
+          ['triggers', '📝 Triggers'],
           ['insights', '📊 Insights'],
           ['settings', '⚙️ My Settings'],
         ].map(([id, l]) => (
@@ -31,6 +34,15 @@ export default function Parents() {
 
       {sec === 'help' && <HardMoment />}
       {sec === 'reset' && <ParentReset />}
+      {sec === 'triggers' && (
+        <div>
+          <div className="row" style={{ marginBottom: 10, gap: 6 }}>
+            <Btn size="sm" color={trigKid === 'manny' ? 'orange' : 'cream'} onClick={() => setTrigKid('manny')}>🎮 Manny</Btn>
+            <Btn size="sm" color={trigKid === 'maverick' ? 'orange' : 'cream'} onClick={() => setTrigKid('maverick')}>⚡ Maverick</Btn>
+          </div>
+          <TriggerTracker kidId={trigKid} kidName={trigKid === 'manny' ? 'Manny' : 'Maverick'} />
+        </div>
+      )}
       {sec === 'routines' && (
         <div>
           <div className="row" style={{ marginBottom: 10, gap: 6 }}>

@@ -14,6 +14,7 @@ import Recipes from './tabs/Recipes.jsx';
 import Together from './tabs/Together.jsx';
 import Settings from './tabs/Settings.jsx';
 import Parents from './tabs/Parents.jsx';
+import WindDown, { useScreenTime } from './components/WindDown.jsx';
 
 const TABS = [
   { id: 'home', label: 'Home', emoji: '🏠' },
@@ -162,6 +163,9 @@ export default function App() {
     }
   }, [user]);
 
+  // Screen-time wind-down in kids mode
+  const { windingDown, setWindingDown } = useScreenTime(user?.kidTab || 'manny');
+
   // Grown-ups gate: PIN required to leave kids mode
   const exitKidMode = () => {
     if (!hasPin()) {
@@ -256,6 +260,10 @@ export default function App() {
       )}
 
       <BreakButton onBreak={goBreak} />
+
+      {kidMode && windingDown && (
+        <WindDown kidId={user?.kidTab || 'manny'} onComplete={() => exitKidMode()} />
+      )}
 
       {showPinGate && (
         <Modal onClose={() => setShowPinGate(false)} title="🔒 Grown-ups only">
