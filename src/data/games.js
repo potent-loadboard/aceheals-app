@@ -80,10 +80,10 @@ export const GAMES = [
   gen(){ const [a,b]=rnd(OPPOSITES); const ans=b.split(' ')[1]||b;
     return { q:`What's the opposite of ${a}?`, display:a+' ↔️ ?', options:mc(ans,['night','cold','quiet','slow','sad','down','dark','small']), answer:ans, hint:`Think about the flip side — it's ${b}!` }; } },
 { id:'money', name:'Money Counter', emoji:'💰', color:'#2ECC71',
-  gen(diff){ const coins=[['🪙 penny',1],['🪙 nickel',5],['🪙 dime',10],['🪙 quarter',25]];
-    const n=diff==='easy'?2:diff==='medium'?3:4; let total=0; let desc=[];
-    for(let i=0;i<n;i++){ const [nm,v]=rnd(coins); total+=v; desc.push(nm.split(' ')[1]); }
-    return { q:'Count the coins! 🪙', display:desc.join(' + '), options:mc(total,[total-5,total+5,total-10,total+10,total+1,total-1].filter(x=>x>0)), answer:total, hint:`You're rich! Count those coins again!` }; } },
+  gen(diff){ const coins=[['🟤',1,'penny'],['⚪',5,'nickel'],['🔘',10,'dime'],['⭕',25,'quarter']];
+    const n=diff==='easy'?2:diff==='medium'?3:4; let total=0; let coinsShown=[];
+    for(let i=0;i<n;i++){ const [emoji,v,name]=rnd(coins); total+=v; coinsShown.push(`${emoji}${v}¢`); }
+    return { q:'Count the coins! 🪙', display:coinsShown.join('  +  '), options:mc(total,[total-5,total+5,total-10,total+10,total+1,total-1].filter(x=>x>0)), answer:total, hint:`You're rich! Count those coins again! 🤑` }; } },
 { id:'clock', name:'Clock Reader', emoji:'🕐', color:'#3498DB',
   gen(){ const t=rnd(CLOCKS); return { q:'What time is it? ⏰', display:'🕐 '+t, options:mc(t,CLOCKS), answer:t, hint:`You're a time detective — it's ${t}!` }; } },
 { id:'map', name:'Map Explorer', emoji:'🗺️', color:'#FF6B35',

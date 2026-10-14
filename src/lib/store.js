@@ -50,11 +50,18 @@ export function toast(msg) {
 }
 
 // Text-to-speech (AAC board, stories, read-aloud)
+// Strips emojis/symbols first — screen readers read "glowing star" etc. out loud otherwise.
 export function speak(text, rate = 0.85) {
   try {
     if (!('speechSynthesis' in window)) { toast('🔇 Speech not supported on this device'); return; }
+    // Remove emojis, pictographs, symbols, and variation selectors — keep words & punctuation
+    const clean = String(text || '')
+      .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{200D}\u{2190}-\u{21FF}\u{2300}-\u{23FF}]/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!clean) return;
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
+    const u = new SpeechSynthesisUtterance(clean);
     u.rate = rate;
     window.speechSynthesis.speak(u);
   } catch {
