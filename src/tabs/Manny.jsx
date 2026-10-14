@@ -34,13 +34,17 @@ function GameShell({ game, onExit }) {
   }, [timerOn]);
 
   const next = (d = diff) => {
-    setQ(game.gen(d)); setPicked(null); setShowHint(false);
+    const usedKeys = usedRef.current;
+    const newQ = game.id === 'rhyme' ? game.gen(d, usedKeys) : game.gen(d);
+    if (newQ.usedKey) usedKeys.push(newQ.usedKey);
+    setQ(newQ); setPicked(null); setShowHint(false);
     // Memory game: show memorize phase first
     if (game.id === 'memory') {
       setMemorizing(true);
       setTimeout(() => setMemorizing(false), 3000);
     }
   };
+  const usedRef = React.useRef([]);
   const [memorizing, setMemorizing] = useState(game.id === 'memory');
 
   // Start memorize timer on first load for memory game
@@ -115,6 +119,26 @@ function GameShell({ game, onExit }) {
       </div>
 
       <Card style={{ textAlign: 'center', padding: 24 }}>
+        {q.completed ? (
+          <div style={{ padding: 20 }}>
+            <div style={{ fontSize: 80 }}>🏆</div>
+            <div style={{ fontSize: 28, fontWeight: 900, color: '#ffe600', marginTop: 12 }}>
+              You did ALL the rhymes!
+            </div>
+            <div style={{ fontSize: 16, color: '#b9a8e8', marginTop: 8 }}>
+              Amazing work, superstar! 🌟
+            </div>
+            <div style={{ marginTop: 16 }}>
+              <Btn color="purple" onClick={() => { usedRef.current = []; next(); }} style={{ fontSize: 18, padding: '14px 28px', marginRight: 8 }}>
+                🔄 Play Again
+              </Btn>
+              <Btn color="blue" onClick={onExit} style={{ fontSize: 18, padding: '14px 28px' }}>
+                ← Back to Games
+              </Btn>
+            </div>
+          </div>
+        ) : (
+        <>
         <div className="row" style={{ justifyContent: 'space-between', marginBottom: 10 }}>
           <span className="streak-badge">⭐ {stars} this game</span>
           <span className="pill">🔥 streak {streak}</span>
@@ -186,6 +210,8 @@ function GameShell({ game, onExit }) {
           <div style={{ marginTop: 10 }}><Btn size="sm" color="cream" onClick={() => setShowHint(!showHint)}>💡 Hint</Btn></div>
         )}
         {showHint && !picked && <div style={{ fontSize: 14, marginTop: 8, color: '#8a7f9e' }}>💡 {q.hint}</div>}
+        </>
+        )}
         </>
         )}
       </Card>

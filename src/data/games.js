@@ -20,7 +20,27 @@ const SCIENCE = [
 ];
 const MAPS = [['🗺️','Which shows the whole world?','map'],['🧭','What points north?','compass'],['🏔️','What is a tall rocky land?','mountain'],['🌊','What is a big body of salt water?','ocean'],['🏝️','What is land with water all around?','island'],['🏜️','What is a hot sandy place?','desert']];
 const OPPOSITES = [['☀️ day','night 🌙'],['🔥 hot','cold 🧊'],['📢 loud','quiet 🔇'],['⚡ fast','slow 🐢'],['😊 happy','sad 😢'],['⬆️ up','down ⬇️'],['💡 light','dark 🌑'],['🐘 big','small 🐭']];
-const RHYMES = [['🐱 cat','hat 🎩'],['🐶 dog','frog 🐸'],['🌙 moon','spoon 🥄'],['⭐ star','car 🚗'],['🐝 bee','tree 🌳'],['🦆 duck','truck 🚚'],['🐷 pig','wig 💇'],['🐸 frog','log 🪵'],['🦉 owl','towel 🧻'],['🐰 bun','sun 🌞'] ];
+const RHYMES = [
+  ['🐱 cat','hat 🎩'],['🐶 dog','frog 🐸'],['🌙 moon','spoon 🥄'],['⭐ star','car 🚗'],
+  ['🐝 bee','tree 🌳'],['🦆 duck','truck 🚚'],['🐷 pig','wig 💇'],['🐸 frog','log 🪵'],
+  ['🦉 owl','towel 🧻'],['🐰 bun','sun 🌞'],['🦁 lion','crying 😢'],['🐯 tiger','rider 🏍️'],
+  ['🐘 elephant','relevant 📌'],['🦒 giraffe','laugh 😂'],['🐵 monkey','donkey 🫏'],
+  ['🐔 chicken','pickin ⛏️'],['🐴 horse','of course ✅'],['🐑 sheep','sleep 😴'],
+  ['🦋 butterfly','in the sky ☁️'],['🐢 turtle','purple 🟣'],['🐳 whale','sail ⛵'],
+  ['🦜 parrot','carrot 🥕'],['🐙 octopus','hocus pocus 🪄'],['🦀 crab','grab ✊'],
+  ['🍎 apple','snapple 🧃'],['🍌 banana','bandana 🧣'],['🍇 grapes','shapes 🔷'],
+  ['🍓 strawberry','very berry 🫐'],['🥛 milk','silk 🧵'],['🍪 cookie','bookie 📚'],
+  ['🧀 cheese','sneeze 🤧'],['🥞 pancake','bake shake 🥤'],['🍩 donut','peanut 🥜'],
+  ['🌈 rainbow','go flow 🌊'],['☀️ sun','fun 🎉'],['🌧️ rain','train 🚂'],
+  ['❄️ snow','go go 🏃'],['🌊 wave','brave 🦸'],['🔥 fire','higher ⬆️'],
+  ['💡 light','bright ✨'],['🌟 twinkle','sprinkle 💦'],['🎈 balloon','moon 🌙'],
+  ['🚗 car','star ⭐'],['✈️ plane','rain 🌧️'],['🚂 train','brain 🧠'],
+  ['⛵ boat','goat 🐐'],['🏠 house','mouse 🐭'],['🛏️ bed','red 🔴'],
+  ['📖 book','look 👀'],['🖍️ crayon','play on ▶️'],['🎨 paint','saint 😇'],
+  ['⚽ ball','tall 📏'],['🪁 kite','night 🌃'],['🧸 teddy','ready ✅'],
+  ['🎮 game','same 👍'],['🎲 dice','nice 😊'],['🃏 card','hard 💪'],
+  ['👑 crown','down ⬇️'],['💎 diamond','island 🏝️'],['🔔 bell','well 🕳️'],
+];
 const CLOCKS = [['🕐','1 o clock'],['🕑','2 o clock'],['🕒','3 o clock'],['🕓','4 o clock'],['🕔','5 o clock'],['🕕','6 o clock'],['🕖','7 o clock'],['🕗','8 o clock'],['🕘','9 o clock'],['🕙','10 o clock'],['🕚','11 o clock'],['🕛','12 o clock'],['🕜','1 thirty'],['🕝','2 thirty'],['🕞','3 thirty'],['🕟','4 thirty'],['🕠','5 thirty'],['🕡','6 thirty'],['🕢','7 thirty'],['🕣','8 thirty'],['🕤','9 thirty'],['🕥','10 thirty'],['🕦','11 thirty'],['🕧','12 thirty']];
 
 function numQ(diff, op) {
@@ -110,8 +130,20 @@ export const GAMES = [
   gen(){ const L=rnd(LETTERS); const lower=L.toLowerCase();
     return { q:'Match the letters! 🔤', display:L+' = ?', options:mc(lower,LETTERS.map(x=>x.toLowerCase())), answer:lower, hint:`Big ${L}, little ${lower} — they're best friends!` }; } },
 { id:'rhyme', name:'Rhyme Time', emoji:'🎵', color:'#9B59B6',
-  gen(){ const [a,b]=rnd(RHYMES); const ans=b.split(' ')[0];
-    return { q:`What rhymes with ${a}? 🎤`, display:a, options:mc(ans,RHYMES.map(r=>r[1].split(' ')[0])), answer:ans, hint:`${a} and ${b} rhyme — sing it out loud! 🎶` }; } },
+  gen(diff, used = []){
+    // No repeats: filter out already-used pairs
+    const available = RHYMES.filter((r) => !used.includes(r[0]));
+    if (available.length === 0) {
+      // All done! Celebrate completion
+      return { completed: true, q:'🎉 All done!', display:'🏆',
+        options:[], answer:null, hint:'You finished all the rhymes!' };
+    }
+    const [a,b] = rnd(available); const ans = b.split(' ')[0];
+    return { q:`What rhymes with ${a}? 🎤`, display:a,
+      options:mc(ans, RHYMES.map(r=>r[1].split(' ')[0])), answer:ans,
+      usedKey: a, // track this so we don't repeat
+      hint:`${a} and ${b} rhyme — sing it out loud! 🎶` };
+  } },
 { id:'opposites', name:'Opposites', emoji:'↔️', color:'#F1C40F',
   gen(){ const [a,b]=rnd(OPPOSITES); const ans=b.split(' ')[1]||b.split(' ')[0];
     return { q:`What's the opposite of ${a}? 🤔`, display:a, options:mc(ans,OPPOSITES.map(o=>o[1].split(' ')[1]||o[1].split(' ')[0])), answer:ans, hint:`Think about the flip side — it's ${b}! 🔄` }; } },
