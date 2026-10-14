@@ -343,9 +343,13 @@ export default function App() {
       )}
 
       {showPinGate && (
-        <Modal onClose={() => setShowPinGate(false)} title="🔒 Grown-ups only">
+        <Modal onClose={() => setShowPinGate(false)} title="✋ Grown-ups only!">
           <div style={{ textAlign: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 14, color: '#8a7f9e' }}>Enter your 4-digit parent PIN to leave Kids Mode.</div>
+            <div style={{ fontSize: 48 }}>🔒</div>
+            <div style={{ fontSize: 14, color: '#8a7f9e', marginTop: 8 }}>
+              Hey kiddo — this needs a grown-up!<br />
+              Ask a parent to type the secret code 👇
+            </div>
           </div>
           <input className="input-gloss" type="password" inputMode="numeric" maxLength={4}
             placeholder="••••" value={pinInput}
@@ -353,24 +357,36 @@ export default function App() {
             onKeyDown={(e) => e.key === 'Enter' && submitPin()}
             style={{ textAlign: 'center', fontSize: 28, letterSpacing: 12, marginBottom: 12 }} />
           <Btn block onClick={submitPin}>Unlock 🔓</Btn>
+          <div style={{ textAlign: 'center', marginTop: 8 }}>
+            <Btn size="sm" color="cream" onClick={() => setShowPinGate(false)}>← Back to playing! 🎮</Btn>
+          </div>
         </Modal>
       )}
 
       {showPinSetup && (
-        <Modal onClose={() => setShowPinSetup(false)} title="🔒 Set Parent PIN">
+        <Modal onClose={() => setShowPinSetup(false)} title="✋ Whoa there!">
           <div style={{ textAlign: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 40 }}>👨‍👩‍👧</div>
+            <div style={{ fontSize: 56 }}>👨‍👩‍👧</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#1A1040', marginTop: 8 }}>
+              This part is for grown-ups!
+            </div>
             <div style={{ fontSize: 14, color: '#8a7f9e', marginTop: 8 }}>
-              Create a 4-digit PIN to protect grown-up areas.<br />
-              Kids won't be able to leave Kids Mode without it!
+              Go grab a parent to set this up 👆<br />
+              Then you can get back to playing! 🎮
             </div>
           </div>
-          <input className="input-gloss" type="password" inputMode="numeric" maxLength={4}
-            placeholder="••••" value={pinInput}
-            onChange={(e) => setPinInput(e.target.value.replace(/\D/g, '').slice(0, 4))}
-            onKeyDown={(e) => e.key === 'Enter' && submitPinSetup()}
-            style={{ textAlign: 'center', fontSize: 28, letterSpacing: 12, marginBottom: 12 }} />
-          <Btn block onClick={submitPinSetup}>Set PIN ✅</Btn>
+          <div style={{ background: 'rgba(155,89,182,.08)', borderRadius: 12, padding: 12, marginBottom: 12 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1040', marginBottom: 8, textAlign: 'center' }}>
+              🔒 Parent: create a 4-digit PIN
+            </div>
+            <input className="input-gloss" type="password" inputMode="numeric" maxLength={4}
+              placeholder="••••" value={pinInput}
+              onChange={(e) => setPinInput(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              onKeyDown={(e) => e.key === 'Enter' && submitPinSetup()}
+              style={{ textAlign: 'center', fontSize: 28, letterSpacing: 12, marginBottom: 8 }} />
+            <Btn block onClick={submitPinSetup}>Set PIN ✅</Btn>
+          </div>
+          <Btn block color="cream" onClick={() => setShowPinSetup(false)}>← Back to playing! 🎮</Btn>
         </Modal>
       )}
 
