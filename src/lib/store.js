@@ -60,10 +60,23 @@ export function speak(text, rate = 0.85) {
       .replace(/\s+/g, ' ')
       .trim();
     if (!clean) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(clean);
-    u.rate = rate;
-    window.speechSynthesis.speak(u);
+    const synth = window.speechSynthesis;
+    // Android/Chrome: voices load async — wait for them before speaking
+    const doSpeak = () => {
+      synth.cancel();
+      const u = new SpeechSynthesisUtterance(clean);
+      u.rate = rate;
+      // Small delay after cancel() — Android needs breathing room
+      setTimeout(() => { try { synth.speak(u); } catch {} }, 50);
+    };
+    if (synth.getVoices().length === 0) {
+      let done = false;
+      const onVoices = () => { if (!done) { done = true; doSpeak(); } };
+      synth.addEventListener('voiceschanged', onVoices, { once: true });
+      setTimeout(() => { if (!done) { done = true; doSpeak(); } }, 500);
+    } else {
+      doSpeak();
+    }
   } catch {
     toast('🔇 Could not play speech');
   }
