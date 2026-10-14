@@ -203,7 +203,7 @@ export default function App() {
   const openDisclaimer = () => setShowDisclaimer(true);
 
   return (
-    <div className={`${hc ? 'hc' : ''}${lg ? ' lgtext' : ''}${deaf ? ' deaf' : ''}`}>
+    <div className={`${hc ? 'hc' : ''}${lg ? ' lgtext' : ''}${deaf ? ' deaf' : ''}${kidMode ? ' kids-mode' : ''}`}>
       <header className="app-header">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <div>

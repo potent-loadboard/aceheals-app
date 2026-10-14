@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Btn, SectionHead, Loading, Empty, Footer, PBar, Modal, Confetti } from '../components/ui.jsx';
 import { useStored, toast, speak } from '../lib/store.js';
 import { GAMES, ASL_SIGNS, ASL_VIDEO_URL, PRAISE, TRY_AGAIN } from '../data/games.js';
+import PhotoStudio from '../components/PhotoStudio.jsx';
 
 // ================= GAME SHELL =================
 function GameShell({ game, onExit }) {
@@ -286,7 +287,7 @@ export default function Manny({ onDisclaimer }) {
       <SectionHead title="🎮 Manny's World" right={<span className="streak-badge">⭐ {stars}</span>} />
       {!game && (
         <div className="row" style={{ marginBottom: 12, gap: 6 }}>
-          {[['games', '🎮 Games'], ['asl', '🖐️ ASL'], ['rewards', '🏆 Rewards'], ['report', '📊 Report']].map(([id, l]) => (
+          {[['games', '🎮 Games'], ['camera', '📷 Camera'], ['asl', '🖐️ ASL'], ['rewards', '🏆 Rewards'], ['report', '📊 Report']].map(([id, l]) => (
             <Btn key={id} size="sm" color={sec === id ? 'orange' : 'cream'} onClick={() => setSec(id)}>{l}</Btn>
           ))}
         </div>
@@ -304,6 +305,7 @@ export default function Manny({ onDisclaimer }) {
         </div>
       )}
       {sec === 'games' && active && <GameShell game={active} onExit={() => setGame(null)} />}
+      {sec === 'camera' && <PhotoStudio />}
       {sec === 'asl' && <ASL />}
       {sec === 'rewards' && <Rewards />}
       {sec === 'report' && <Report />}
