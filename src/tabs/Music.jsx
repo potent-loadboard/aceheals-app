@@ -4,6 +4,7 @@ import { useStored, toast } from '../lib/store.js';
 import { hasAccess } from '../lib/paywall.js';
 import { FREQUENCIES, KIDS_CHANNELS, PLAYLISTS, SLEEP_SOUNDS } from '../data/content.js';
 import { playFrequency, playAmbience, stopAudio, drum } from '../lib/audio.js';
+import { saveBeat, listBeats, deleteBeat } from '../lib/beatStore.js';
 
 function Music({ onDisclaimer }) {
   const paid = hasAccess();
@@ -11,6 +12,14 @@ function Music({ onDisclaimer }) {
   const [mix, setMix] = useState([]);
   const [sleepTimer, setSleepTimer] = useState(0);
   const [favs, setFavs] = useStored('musicFavs', []);
+  const [instrumentals, setInstrumentals] = useState([]);
+  const [currentBeat, setCurrentBeat] = useState(null);
+  const beatFileRef = React.useRef(null);
+  const beatAudioRef = React.useRef(null);
+
+  useEffect(() => {
+    listBeats().then(setInstrumentals).catch(() => {});
+  }, []);
 
   useEffect(() => () => stopAudio(), []);
   useEffect(() => {
@@ -25,6 +34,35 @@ function Music({ onDisclaimer }) {
     toast(`🎵 ${f.hz}Hz — ${f.name}`);
   };
   const stop = () => { stopAudio(); setPlaying(null); setMix([]); };
+
+  const handleBeatUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const id = 'beat-' + Date.now();
+      await saveBeat(id, file.name.replace(/\.[^.]+$/, ''), file);
+      const list = await listBeats();
+      setInstrumentals(list);
+      toast('🔥 Beat added to the library!');
+    } catch {
+      toast('😢 Could not save that file');
+    }
+    e.target.value = '';
+  };
+
+  const playBeat = (b) => {
+    stopAudio();
+    const url = URL.createObjectURL(b.blob);
+    if (beatAudioRef.current) { beatAudioRef.current.src = url; beatAudioRef.current.play(); }
+    setCurrentBeat(b.id);
+    setPlaying(null);
+  };
+
+  const removeBeat = async (id) => {
+    await deleteBeat(id);
+    setInstrumentals(await listBeats());
+    if (currentBeat === id) { beatAudioRef.current?.pause(); setCurrentBeat(null); }
+  };
 
   const toggleSleepMix = (id) => {
     const next = mix.includes(id) ? mix.filter((x) => x !== id) : [...mix, id].slice(0, 2);
@@ -52,6 +90,40 @@ function Music({ onDisclaimer }) {
           <Btn color="purple" block onClick={() => { playAmbience('ocean'); setPlaying({ kind: 'calm', id: 'ocean' }); }}>Start Calm Mode 🌊</Btn>
         )}
       </Card>
+
+      <SectionHead title="🔥 Tony's Beats" />
+      <Card style={{ background: 'linear-gradient(180deg,#2a1a4e,#1A1040)', borderColor: '#9B59B6', color: '#fff' }}>
+        <div style={{ textAlign: 'center', marginBottom: 10 }}>
+          <div style={{ fontSize: 40 }}>🎛️</div>
+          <b style={{ fontSize: 16 }}>Instrumental Library</b>
+          <div style={{ fontSize: 13, opacity: 0.8 }}>Original beats — play, vibe, create. All ages.</div>
+        </div>
+        <Btn block color="orange" onClick={() => beatFileRef.current?.click()}>📥 Add a Beat</Btn>
+        <input ref={beatFileRef} type="file" accept="audio/*" style={{ display: 'none' }} onChange={handleBeatUpload} />
+        <audio ref={beatAudioRef} style={{ display: 'none' }} onEnded={() => setCurrentBeat(null)} />
+      </Card>
+      {instrumentals.length > 0 && (
+        <div style={{ marginTop: 8 }}>
+          {instrumentals.map((b) => (
+            <div key={b.id} className="check-item" style={currentBeat === b.id ? { borderColor: '#9B59B6', borderWidth: 2 } : {}}>
+              <div style={{ fontSize: 28 }}>🎧</div>
+              <div style={{ flex: 1 }} onClick={() => playBeat(b)}>
+                <b style={{ color: '#1A1040' }}>{b.name}</b>
+                <div style={{ fontSize: 12, color: '#8a7f9e' }}>{currentBeat === b.id ? '▶️ Now playing — tap to replay' : 'Tap to play'}</div>
+              </div>
+              {currentBeat === b.id && (
+                <Btn size="sm" color="red" onClick={() => { beatAudioRef.current?.pause(); setCurrentBeat(null); }}>⏹️</Btn>
+              )}
+              <button className="btn-gloss btn-red btn-sm" onClick={() => removeBeat(b.id)}>✕</button>
+            </div>
+          ))}
+        </div>
+      )}
+      {instrumentals.length === 0 && (
+        <div style={{ fontSize: 13, color: '#8a7f9e', textAlign: 'center', margin: '8px 0 16px' }}>
+          No beats yet — upload your first instrumental above 👆
+        </div>
+      )}
 
       <SectionHead title="🎼 Calming Frequencies" />
       {FREQUENCIES.map((f) => {

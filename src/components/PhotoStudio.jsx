@@ -65,6 +65,16 @@ export default function PhotoStudio() {
 
   const deletePhoto = (url) => setGallery((g) => g.filter((x) => x !== url));
 
+  const exportPhoto = (url, i) => {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `manny-photo-${Date.now()}.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast('💾 Photo saved to your device!');
+  };
+
   return (
     <div>
       <SectionHead title="📷 Manny's Photo Studio" />
@@ -130,6 +140,8 @@ export default function PhotoStudio() {
             {gallery.map((url, i) => (
               <div key={i} style={{ position: 'relative' }}>
                 <img src={url} alt={`Photo ${i + 1}`} />
+                <button onClick={() => exportPhoto(url, i)}
+                  style={{ position: 'absolute', bottom: 2, left: 2, background: 'rgba(0,229,255,.85)', color: '#0d0628', border: 'none', borderRadius: 10, padding: '4px 8px', cursor: 'pointer', fontSize: 12, fontWeight: 800 }}>💾 Save</button>
                 <button onClick={() => deletePhoto(url)}
                   style={{ position: 'absolute', top: 2, right: 2, background: 'rgba(0,0,0,.6)', color: '#fff', border: 'none', borderRadius: '50%', width: 24, height: 24, cursor: 'pointer', fontSize: 12 }}>✕</button>
               </div>

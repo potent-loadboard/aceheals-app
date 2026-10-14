@@ -6,7 +6,7 @@ import { AAC_CATEGORIES, READING_CARDS } from '../data/aac.js';
 import { SOCIAL_STORIES } from '../data/content.js';
 import { HIP_HOP_SESSIONS } from '../data/content.js';
 import { CALM_SOUNDS, SLEEP_SOUNDS } from '../data/content.js';
-import { playAmbience, stopAudio, drum, KITS } from '../lib/audio.js';
+import { playAmbience, stopAudio, drum, KITS, exportBeatToWav } from '../lib/audio.js';
 import { DISCLAIMER } from '../lib/disclaimer.js';
 import ASL from '../components/ASL.jsx';
 
@@ -587,8 +587,13 @@ function BeatMaker() {
   const [kit, setKit] = useState('hip hop');
   const [rec, setRec] = useState(false);
   const [events, setEvents] = useState([]);
-  const [saved, setSaved] = useStored('beats', []);
+  // Session-only: nothing auto-saves to device storage. Export the final WAV.
+  const [takes, setTakes] = useState([]);
+  const [imported, setImported] = useState([]);
+  const [exporting, setExporting] = useState(false);
   const startRef = useRef(0);
+  const fileRef = useRef(null);
+  const audioRef = useRef(null);
   const pads = [
     ['🥁', 'kick', '#FF6B35'], ['🪘', 'snare', '#9B59B6'], ['🎩', 'hat', '#3498DB'], ['👏', 'clap', '#2ECC71'],
     ['🥁', 'kick', '#E91E8C'], ['🪘', 'snare', '#F1C40F'], ['🎩', 'hat', '#1A1040'], ['👏', 'clap', '#FF6B35'],
@@ -605,6 +610,33 @@ function BeatMaker() {
     evts.forEach(({ type, t }) => drum(type, t / 1000));
     toast('🎵 Playing your beat!');
   };
+
+  const doExport = async (evts, name) => {
+    setExporting(true);
+    try {
+      await exportBeatToWav(evts, name || 'maverick-beat');
+      toast('💾 Beat exported as WAV!');
+    } catch {
+      toast('😢 Export failed — try again');
+    }
+    setExporting(false);
+  };
+
+  const handleImport = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setImported((list) => [{ id: Date.now(), name: file.name.replace(/\.[^.]+$/, ''), url }, ...list].slice(0, 10));
+    toast('🎵 Beat loaded for this session!');
+    e.target.value = '';
+  };
+
+  const keepTake = () => {
+    if (!events.length) return;
+    setTakes((t) => [...t, { id: Date.now(), events: [...events], name: `Take ${t.length + 1}` }]);
+    setEvents([]);
+    toast('🎵 Take kept — export your favorite when done!');
+  };
   return (
     <div>
       <div className="row" style={{ marginBottom: 10, gap: 6 }}>
@@ -616,25 +648,48 @@ function BeatMaker() {
             style={{ '--g2': col, fontSize: 30 }}>{e}</button>
         ))}
       </div>
-      <div className="row" style={{ marginTop: 12 }}>
+      <div className="row" style={{ marginTop: 12, gap: 6, flexWrap: 'wrap' }}>
         <Btn size="sm" color={rec ? 'red' : 'cream'} onClick={() => {
           if (!rec) { startRef.current = Date.now(); setEvents([]); }
+          else if (events.length > 0) keepTake();
           setRec(!rec);
-        }}>{rec ? '⏹️ Stop' : '⏺️ Record'}</Btn>
+        }}>{rec ? '⏹️ Stop & Keep Take' : '⏺️ Record'}</Btn>
         {events.length > 0 && !rec && (
           <>
             <Btn size="sm" color="blue" onClick={() => playBack(events)}>▶️ Play</Btn>
-            <Btn size="sm" color="green" onClick={() => { setSaved((s) => [...s, { id: Date.now(), events }]); setEvents([]); toast('💾 Beat saved!'); }}>💾 Save</Btn>
+            <Btn size="sm" color="green" onClick={keepTake}>➕ Keep Take</Btn>
           </>
         )}
+        <Btn size="sm" color="orange" onClick={() => fileRef.current?.click()}>📥 Import Beat</Btn>
+        <input ref={fileRef} type="file" accept="audio/*" style={{ display: 'none' }} onChange={handleImport} />
       </div>
-      {saved.length > 0 && (
+      <div style={{ fontSize: 12, color: '#8a7f9e', marginTop: 6, textAlign: 'center' }}>
+        🎙️ Takes stay in this session only — nothing saves to your phone until you export.
+      </div>
+      <audio ref={audioRef} style={{ display: 'none' }} />
+      {takes.length > 0 && (
         <>
-          <SectionHead title="💾 Saved Beats" />
-          {saved.map((b) => (
-            <div key={b.id} className="check-item" onClick={() => playBack(b.events)}>
-              <div style={{ flex: 1 }}>🎵 Beat ({b.events.length} hits)</div>
-              <button className="btn-gloss btn-red btn-sm" onClick={(e) => { e.stopPropagation(); setSaved(saved.filter((x) => x.id !== b.id)); }}>✕</button>
+          <SectionHead title="🎙️ Session Takes — pick your final" />
+          {takes.map((t) => (
+            <div key={t.id} className="check-item">
+              <div style={{ flex: 1 }} onClick={() => playBack(t.events)}>🎵 {t.name} ({t.events.length} hits) — tap to hear</div>
+              <Btn size="sm" color="green" disabled={exporting} onClick={() => doExport(t.events, t.name.toLowerCase().replace(/\s+/g, '-'))}>
+                {exporting ? '⏳' : '✅ Export Final'}
+              </Btn>
+              <button className="btn-gloss btn-red btn-sm" onClick={() => setTakes(takes.filter((x) => x.id !== t.id))}>✕</button>
+            </div>
+          ))}
+        </>
+      )}
+      {imported.length > 0 && (
+        <>
+          <SectionHead title="📥 Imported Beats (this session)" />
+          {imported.map((b) => (
+            <div key={b.id} className="check-item">
+              <div style={{ flex: 1 }} onClick={() => { if (audioRef.current) { audioRef.current.src = b.url; audioRef.current.play(); } }}>
+                🎧 {b.name} — tap to play
+              </div>
+              <button className="btn-gloss btn-red btn-sm" onClick={() => { URL.revokeObjectURL(b.url); setImported(imported.filter((x) => x.id !== b.id)); }}>✕</button>
             </div>
           ))}
         </>
