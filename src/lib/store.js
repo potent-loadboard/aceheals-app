@@ -53,6 +53,13 @@ export function toast(msg) {
 // Strips emojis/symbols first — screen readers read "glowing star" etc. out loud otherwise.
 export function speak(text, rate = 0.85) {
   try {
+    // Respect global audio settings
+    try {
+      const s = JSON.parse(localStorage.getItem('aceheals:audioSettings') || '{}');
+      if (s.master === false) return;
+      if (s.voice === false) return;
+      if (s.mode === 'library' || s.mode === 'quiet') return;
+    } catch {}
     if (!('speechSynthesis' in window)) { toast('🔇 Speech not supported on this device'); return; }
     // Remove emojis, pictographs, symbols, and variation selectors — keep words & punctuation
     const clean = String(text || '')

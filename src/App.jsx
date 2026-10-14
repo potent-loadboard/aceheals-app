@@ -13,6 +13,7 @@ import Music from './tabs/Music.jsx';
 import Recipes from './tabs/Recipes.jsx';
 import Together from './tabs/Together.jsx';
 import Settings from './tabs/Settings.jsx';
+import AudioControls from './components/AudioControls.jsx';
 import Parents from './tabs/Parents.jsx';
 import WindDown, { useScreenTime } from './components/WindDown.jsx';
 import { useSensory } from './components/SensorySettings.jsx';
@@ -35,6 +36,14 @@ function AuthGate({ onAuth }) {
   const [pw, setPw] = useState('');
   const [busy, setBusy] = useState(false);
   const [showParent, setShowParent] = useState(false);
+
+  // Welcome speech on landing page — Giffy greets the kids!
+  useEffect(() => {
+    const t = setTimeout(() => {
+      speak("Hi friends! I'm Giffy! Tap your name to start playing with me!");
+    }, 800);
+    return () => clearTimeout(t);
+  }, []);
 
   const go = async () => {
     if (!email || !pw) { toast('✏️ Enter email + password'); return; }
@@ -406,6 +415,7 @@ export default function App() {
       </nav>
 
       <Toasts />
+      <AudioControls />
     </div>
   );
 }

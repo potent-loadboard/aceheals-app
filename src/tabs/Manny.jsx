@@ -38,6 +38,10 @@ function GameShell({ game, onExit }) {
     const newQ = game.id === 'rhyme' ? game.gen(d, usedKeys) : game.gen(d);
     if (newQ.usedKey) usedKeys.push(newQ.usedKey);
     setQ(newQ); setPicked(null); setShowHint(false);
+    // Narrate the question (unless it's the memory memorize phase)
+    if (!newQ.completed && game.id !== 'memory') {
+      setTimeout(() => speak(newQ.q), 300);
+    }
     // Memory game: show memorize phase first
     if (game.id === 'memory') {
       setMemorizing(true);

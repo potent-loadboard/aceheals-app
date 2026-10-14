@@ -4,6 +4,26 @@
 let ctx = null;
 let current = null; // { nodes:[], stop() }
 
+// Check global audio settings
+function audioAllowed(type = 'effects') {
+  try {
+    const s = JSON.parse(localStorage.getItem('aceheals:audioSettings') || '{}');
+    if (s.master === false) return false;
+    if (type === 'effects' && s.effects === false) return false;
+    if (s.mode === 'library') return false;
+    return true;
+  } catch { return true; }
+}
+
+function getVolume() {
+  try {
+    const s = JSON.parse(localStorage.getItem('aceheals:audioSettings') || '{}');
+    let v = typeof s.volume === 'number' ? s.volume : 0.8;
+    if (s.mode === 'quiet') v *= 0.4; // quiet mode = softer
+    return v;
+  } catch { return 0.8; }
+}
+
 function ac() {
   if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
   if (ctx.state === 'suspended') ctx.resume();
@@ -23,11 +43,13 @@ function register(nodes, stopFn) {
 
 // --- Calming frequencies: pure sine tones (396/432/528/741 Hz) ---
 export function playFrequency(hz) {
+  if (!audioAllowed('effects')) return;
   const c = ac();
   const osc = c.createOscillator();
   const gain = c.createGain();
   osc.type = 'sine';
   osc.frequency.value = hz;
+  gain.gain.value = getVolume();
   gain.gain.setValueAtTime(0.0001, c.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.22, c.currentTime + 2);
   osc.connect(gain).connect(c.destination);
@@ -50,6 +72,7 @@ function noiseBuffer(c, seconds = 3) {
 
 // kind: rain | ocean | whitenoise | fan | thunderstorm | heartbeat | nature
 export function playAmbience(kind, { mixWith = null } = {}) {
+  if (!audioAllowed('effects')) return;
   const c = ac();
   const nodes = [];
   const master = c.createGain();
@@ -119,6 +142,7 @@ export function playAmbience(kind, { mixWith = null } = {}) {
 
 // --- Beat maker drums (synthesized) ---
 export function drum(type, when = 0) {
+  if (!audioAllowed('effects')) return;
   const c = ac();
   const t = c.currentTime + when;
   if (type === 'kick') {
