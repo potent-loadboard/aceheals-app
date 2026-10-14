@@ -210,13 +210,21 @@ export const GAMES = [
   gen(){ const [e,q,ans]=rnd(SCIENCE); const pool=[['💧','water'],['☀️','sunlight'],['🦴','bones'],['❤️','heart'],['🌙','moon'],['🔥','fire'],['🌬️','air'],['🌱','soil']];
     return { q:q+' 🔬', display:e, options:mc(ans+' '+e,pool.map(p=>p[1]+' '+p[0])), answer:ans+' '+e, hint:`Think like a scientist — it's ${ans}! 🧪` }; } },
 { id:'memory', name:'Memory Flip', emoji:'🃏', color:'#1A1040',
-  gen(diff){ const pool=['🐶','🐱','🦁','🐸','🦋','🐢','🐘','🦒','🐳','🦜','🐝','🐵'];
+  gen(diff){
+    const pool=['🐶','🐱','🦁','🐸','🦋','🐢','🐘','🦒','🐳','🦜','🐝','🐵','🐷','🐥','🦄','🐨'];
     const n=diff==='prek'?3:diff==='k2'?3:diff==='g34'?4:diff==='g56'?5:6;
-    const shown=shuffle(pool).slice(0,n); const missing=rnd(shown);
-    const rest=shown.filter(e=>e!==missing);
-    return { q:'Which one is missing? 🧠', display:'👀 '+rest.join('  ')+'  ❓',
+    const shown=shuffle(pool).slice(0,n);
+    // Pick one they SAW as the answer, add one they DIDN'T see as decoy
+    const answer=rnd(shown);
+    const notSeen=pool.filter(e=>!shown.includes(e));
+    const decoy=rnd(notSeen);
+    const others=shuffle(shown.filter(e=>e!==answer)).slice(0,2);
+    const options=shuffle([answer, decoy, ...others]);
+    return { q:'Which one did you see? 🧠', display:'❓',
       fullSet: shown, // shown during memorize phase
-      options:mc(missing,pool), answer:missing, hint:`Look at the group — which friend is hiding? 🙈` }; } },
+      options, answer,
+      hint:`Think back... which animal was in the group? 🧠` };
+  } },
 ];
 
 // ASL: 15 survival signs (per spec)
