@@ -8,6 +8,7 @@ import StoryMaker from '../components/StoryMaker.jsx';
 import CharacterCreator from '../components/CharacterCreator.jsx';
 import { Mascot } from '../components/Mascot.jsx';
 import { useKidProfile } from '../lib/kidProfile.js';
+import { useSensory } from '../components/SensorySettings.jsx';
 
 // ================= GAME SHELL =================
 function GameShell({ game, onExit }) {
@@ -130,6 +131,7 @@ function Rewards() {
   const [celebrate, setCelebrate] = useState(false);
   const [edit, setEdit] = useState(false);
   const [draft, setDraft] = useState(goal);
+  const { sensory } = useSensory();
 
   useEffect(() => {
     if (stars >= goal.stars && goal.stars > 0) setCelebrate(true);
@@ -138,12 +140,12 @@ function Rewards() {
   return (
     <div>
       {celebrate && (
-        <Modal onClose={() => setCelebrate(false)} title="🎉 REWARD EARNED!">
-          <Confetti pieces={80} />
+        <Modal onClose={() => setCelebrate(false)} title={sensory.muteCelebrations ? "🌟 Nice work!" : "🎉 REWARD EARNED!"}>
+          {!sensory.muteCelebrations && <Confetti pieces={80} />}
           <div style={{ textAlign: 'center', padding: 16 }}>
             <div style={{ fontSize: 70 }}>🏆</div>
             <h2>{goal.reward}</h2>
-            <p>{stars} stars! You earned it, superstar!</p>
+            <p>{stars} stars! {sensory.muteCelebrations ? 'Well done.' : 'You earned it, superstar!'}</p>
             <Btn block onClick={() => {
               setGoal({ ...goal, stars: goal.stars + 50 });
               setCelebrate(false);

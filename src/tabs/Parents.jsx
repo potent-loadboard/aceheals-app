@@ -4,6 +4,7 @@ import HardMoment from '../components/HardMoment.jsx';
 import ParentReset from '../components/ParentReset.jsx';
 import RoutineBuilder from '../components/RoutineBuilder.jsx';
 import TriggerTracker from '../components/TriggerTracker.jsx';
+import SensorySettings from '../components/SensorySettings.jsx';
 import { useKidProfile, useParentProfile } from '../lib/kidProfile.js';
 
 export default function Parents() {
@@ -25,6 +26,7 @@ export default function Parents() {
           ['reset', '🧘 My Reset'],
           ['routines', '📋 Routines'],
           ['triggers', '📝 Triggers'],
+          ['sensory', '🎛️ Sensory'],
           ['insights', '📊 Insights'],
           ['settings', '⚙️ My Settings'],
         ].map(([id, l]) => (
@@ -34,6 +36,7 @@ export default function Parents() {
 
       {sec === 'help' && <HardMoment />}
       {sec === 'reset' && <ParentReset />}
+      {sec === 'sensory' && <SensorySettings />}
       {sec === 'triggers' && (
         <div>
           <div className="row" style={{ marginBottom: 10, gap: 6 }}>

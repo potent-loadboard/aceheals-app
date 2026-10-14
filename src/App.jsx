@@ -15,6 +15,7 @@ import Together from './tabs/Together.jsx';
 import Settings from './tabs/Settings.jsx';
 import Parents from './tabs/Parents.jsx';
 import WindDown, { useScreenTime } from './components/WindDown.jsx';
+import { useSensory } from './components/SensorySettings.jsx';
 
 const TABS = [
   { id: 'home', label: 'Home', emoji: '🏠' },
@@ -166,6 +167,16 @@ export default function App() {
   // Screen-time wind-down in kids mode
   const { windingDown, setWindingDown } = useScreenTime(user?.kidTab || 'manny');
 
+  // Sensory settings — applied as CSS classes across the whole app
+  const { sensory } = useSensory();
+  const sensoryClasses = [
+    sensory.reduceMotion ? 'sensory-calm' : '',
+    sensory.highContrast ? 'sensory-hc' : '',
+    sensory.largeTargets ? 'sensory-big' : '',
+    sensory.calmPalette ? 'sensory-pastel' : '',
+    sensory.dimBrightness ? 'sensory-dim' : '',
+  ].filter(Boolean).join(' ');
+
   // Grown-ups gate: PIN required to leave kids mode
   const exitKidMode = () => {
     if (!hasPin()) {
@@ -209,7 +220,7 @@ export default function App() {
   const openDisclaimer = () => setShowDisclaimer(true);
 
   return (
-    <div className={`${hc ? 'hc' : ''}${lg ? ' lgtext' : ''}${deaf ? ' deaf' : ''}${kidMode ? ' kids-mode' : ''}`}>
+    <div className={`${hc ? 'hc' : ''}${lg ? ' lgtext' : ''}${deaf ? ' deaf' : ''}${kidMode ? ' kids-mode' : ''} ${sensoryClasses}`}>
       <header className="app-header">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <div>

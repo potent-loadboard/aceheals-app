@@ -428,3 +428,34 @@ select.input-gloss { appearance: none; }
 .km-frame-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; align-items: flex-start; justify-content: space-around; padding: 12px; font-size: 44px; }
 .km-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .km-gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 14px; border: 2px solid rgba(0,229,255,.4); }
+
+/* ============ SENSORY SETTINGS ============ */
+/* Reduce motion — kills all animation */
+.sensory-calm *, .sensory-calm *::before, .sensory-calm *::after {
+  animation: none !important;
+  transition: none !important;
+}
+/* High contrast */
+.sensory-hc {
+  --km-neon-blue: #fff; --km-neon-pink: #fff; --km-neon-yellow: #fff;
+}
+.sensory-hc .card-gloss, .sensory-hc .game-btn, .sensory-hc .btn-gloss {
+  border-width: 3px !important;
+  border-color: #fff !important;
+}
+.sensory-hc .btn-gloss { text-shadow: none !important; }
+/* Large targets — 30% bigger touch areas */
+.sensory-big .btn-gloss { font-size: 20px !important; padding: 18px 24px !important; min-height: 60px; }
+.sensory-big .game-btn { min-height: 150px !important; }
+.sensory-big .tabbar button { font-size: 15px !important; padding: 14px 4px !important; }
+.sensory-big .tico { font-size: 28px !important; }
+/* Calm palette — mute the neons to pastels */
+.sensory-pastel.kids-mode {
+  --km-neon-blue: #a8d8f0; --km-neon-pink: #f0a8c8; --km-neon-lime: #c8e8a8;
+  --km-neon-yellow: #f0e8a8; --km-neon-purple: #c8a8f0;
+}
+.sensory-pastel.kids-mode .game-btn { box-shadow: none !important; animation: none !important; }
+.sensory-pastel.kids-mode .btn-gloss { box-shadow: 0 2px 0 rgba(0,0,0,.2) !important; }
+/* Dim mode */
+.sensory-dim { filter: brightness(0.75); }
+.sensory-dim.kids-mode::before { opacity: 0.25; }
