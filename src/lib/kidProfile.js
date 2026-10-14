@@ -30,7 +30,7 @@ export function useKidProfile(kidId = 'manny') {
         totalPlays: p.totalPlays + 1,
         lastPlayed: Date.now(),
         needsEncouragement: accuracy < 0.5 && total >= 3,
-        readyForHarder: accuracy > 0.9 && total >= 5 && difficulty !== 'hard',
+        readyForHarder: accuracy > 0.9 && total >= 5 && difficulty !== 'g78',
         bestDifficulty: {
           ...p.bestDifficulty,
           [gameId]: accuracy > 0.7 ? difficulty : (p.bestDifficulty[gameId] || difficulty),
@@ -62,7 +62,7 @@ export function useKidProfile(kidId = 'manny') {
   };
 
   const getSuggestedDifficulty = (gameId) => {
-    return profile.bestDifficulty[gameId] || 'easy';
+    return profile.bestDifficulty[gameId] || 'k2';
   };
 
   const getPersonalizedGreeting = (kidName) => {

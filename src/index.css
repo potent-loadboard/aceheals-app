@@ -475,10 +475,10 @@ select.input-gloss { appearance: none; }
 }
 /* Tablet: wider layout, comfortable spacing */
 @media (min-width: 768px) {
-  .screen { max-width: 800px; padding: 24px 24px 120px; }
-  .grid2 { gap: 14px; }
-  .kids-mode .game-btn { min-height: 140px !important; }
-  .game-q-display { font-size: clamp(32px, 5vw, 56px); }
+  .screen { max-width: 800px; padding: 20px 24px 140px; }
+  .grid2 { gap: 12px; }
+  .kids-mode .game-btn { min-height: 110px !important; }
+  .game-q-display { font-size: clamp(32px, 5vw, 48px); }
   /* Section tab rows scroll horizontally instead of wrapping awkwardly */
   .kids-mode .row { flex-wrap: wrap; }
 }

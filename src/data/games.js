@@ -24,14 +24,21 @@ const RHYMES = [['🐱 cat','hat 🎩'],['🐶 dog','frog 🐸'],['🌙 moon','s
 const CLOCKS = [['🕐','1 o clock'],['🕑','2 o clock'],['🕒','3 o clock'],['🕓','4 o clock'],['🕔','5 o clock'],['🕕','6 o clock'],['🕖','7 o clock'],['🕗','8 o clock'],['🕘','9 o clock'],['🕙','10 o clock'],['🕚','11 o clock'],['🕛','12 o clock'],['🕜','1 thirty'],['🕝','2 thirty'],['🕞','3 thirty'],['🕟','4 thirty'],['🕠','5 thirty'],['🕡','6 thirty'],['🕢','7 thirty'],['🕣','8 thirty'],['🕤','9 thirty'],['🕥','10 thirty'],['🕦','11 thirty'],['🕧','12 thirty']];
 
 function numQ(diff, op) {
-  const [lo, hi] = diff === 'easy' ? [1, 10] : diff === 'medium' ? [1, 20] : [1, 50];
+  // Grade levels: prek, k2, g34, g56, g78 (junior high)
+  const ranges = { prek: [1, 5], k2: [1, 10], g34: [1, 20], g56: [1, 50], g78: [1, 100],
+    easy: [1, 10], medium: [1, 20], hard: [1, 50] }; // legacy fallback
+  const [lo, hi] = ranges[diff] || [1, 10];
   const a = ri(lo, hi), b = ri(lo, hi);
   if (op === 'add') return { a, b, ans: a + b, sym: '+' };
   if (op === 'sub') { const x = Math.max(a, b), y = Math.min(a, b); return { a: x, b: y, ans: x - y, sym: '−' }; }
 }
 
 function mc(answer, pool, n = 4) {
-  const others = shuffle(pool.filter((x) => x !== answer)).slice(0, n - 1);
+  const seen = new Set([answer]);
+  const others = [];
+  for (const x of shuffle(pool)) {
+    if (!seen.has(x) && others.length < n - 1) { seen.add(x); others.push(x); }
+  }
   return shuffle([answer, ...others]);
 }
 
@@ -43,7 +50,7 @@ export const GAMES = [
       ['🟢','🟡'], ['❤️','💙'], ['🌻','🌷'], ['🐠','🐢'],
     ];
     const seq = rnd(seqs);
-    const n = diff === 'easy' ? 4 : diff === 'medium' ? 5 : 6;
+    const n = diff === 'prek' ? 3 : diff === 'k2' ? 4 : diff === 'g34' ? 5 : diff === 'g56' ? 6 : 7;
     const pat = []; for (let i = 0; i < n; i++) pat.push(seq[i % 2]);
     const answer = seq[n % 2];
     const shown = pat.slice(0, -1);
@@ -87,8 +94,17 @@ export const GAMES = [
   gen(){ const mixes=[['🔴 + 🟡','orange','🟠'],['🔵 + 🟡','green','🟢'],['🔴 + 🔵','purple','🟣'],['🔴 + ⚪','pink','💗'],['⚫ + ⚪','gray','⬜']];
     const [q,ans,de]=rnd(mixes); return { q:'Mix the colors! 🎨 What do you get?', display:q+' = ?', options:mc(ans,['orange','green','purple','pink','gray','brown']), answer:ans, hint:`You're a color wizard! You get ${ans} ${de}!` }; } },
 { id:'order', name:'Number Order', emoji:'🔢', color:'#2ECC71',
-  gen(diff){ const hi=diff==='easy'?10:diff==='medium'?20:50; const n=ri(1,hi-2);
-    const ans=n+1; return { q:'What comes next? 🎯', display:`${n}, __`, options:mc(ans,[n-1,n+2,n+3,ans+1]), answer:ans, hint:`Just one more number — you're on fire!` }; } },
+  gen(diff){
+    const hi = { prek: 5, k2: 10, g34: 20, g56: 50, g78: 100 }[diff] || 10;
+    const n = ri(1, hi - 1);
+    const ans = n + 1;
+    // Build 3 unique wrong answers, all different from ans and each other
+    const wrongSet = new Set();
+    const candidates = [n - 1, n + 2, n + 3, n - 2, ans + 2, ans - 2].filter((x) => x > 0 && x !== ans);
+    shuffle(candidates).forEach((x) => { if (wrongSet.size < 3) wrongSet.add(x); });
+    const options = shuffle([ans, ...wrongSet]);
+    return { q: 'What comes next? 🎯', display: `${n}, __`, options, answer: ans, hint: `Just one more number — you're on fire! 🔥` };
+  } },
 { id:'letters', name:'Letter Match', emoji:'🔤', color:'#3498DB',
   gen(){ const L=rnd(LETTERS); const lower=L.toLowerCase();
     return { q:'Match the letters! 🔤', display:L+' = ?', options:mc(lower,LETTERS.map(x=>x.toLowerCase())), answer:lower, hint:`Big ${L}, little ${lower} — they're best friends!` }; } },
@@ -100,7 +116,7 @@ export const GAMES = [
     return { q:`What's the opposite of ${a}? 🤔`, display:a, options:mc(ans,OPPOSITES.map(o=>o[1].split(' ')[1]||o[1].split(' ')[0])), answer:ans, hint:`Think about the flip side — it's ${b}! 🔄` }; } },
 { id:'money', name:'Money Counter', emoji:'💰', color:'#2ECC71',
   gen(diff){ const coins=[['🟤',1,'penny'],['⚪',5,'nickel'],['🔘',10,'dime'],['⭕',25,'quarter']];
-    const n=diff==='easy'?2:diff==='medium'?3:4; let total=0; let coinsShown=[];
+    const n=diff==='prek'?2:diff==='k2'?2:diff==='g34'?3:diff==='g56'?3:4; let total=0; let coinsShown=[];
     for(let i=0;i<n;i++){ const [emoji,v,name]=rnd(coins); total+=v; coinsShown.push(`${emoji}${v}¢`); }
     return { q:'Count the coins! 🪙', display:coinsShown.join('  +  '), options:mc(total,[total-5,total+5,total-10,total+10,total+1,total-1].filter(x=>x>0)), answer:total, hint:`You're rich! Count those coins again! 🤑` }; } },
 { id:'clock', name:'Clock Reader', emoji:'🕐', color:'#3498DB',
@@ -127,7 +143,7 @@ export const GAMES = [
     return { q:q+' 🔬', display:e, options:mc(ans+' '+e,pool.map(p=>p[1]+' '+p[0])), answer:ans+' '+e, hint:`Think like a scientist — it's ${ans}! 🧪` }; } },
 { id:'memory', name:'Memory Flip', emoji:'🃏', color:'#1A1040',
   gen(diff){ const pool=['🐶','🐱','🦁','🐸','🦋','🐢','🐘','🦒','🐳','🦜','🐝','🐵'];
-    const n=diff==='easy'?3:diff==='medium'?4:5;
+    const n=diff==='prek'?3:diff==='k2'?3:diff==='g34'?4:diff==='g56'?5:6;
     const shown=shuffle(pool).slice(0,n); const missing=rnd(shown);
     const rest=shown.filter(e=>e!==missing);
     return { q:'Which one is missing? 🧠', display:'👀 '+rest.join('  ')+'  ❓', options:mc(missing,pool), answer:missing, hint:`Look at the group — which friend is hiding? 🙈` }; } },

@@ -12,8 +12,8 @@ import { useSensory } from '../components/SensorySettings.jsx';
 
 // ================= GAME SHELL =================
 function GameShell({ game, onExit }) {
-  const [diff, setDiff] = useState('easy');
-  const [q, setQ] = useState(() => game.gen('easy'));
+  const [diff, setDiff] = useState('k2');
+  const [q, setQ] = useState(() => game.gen('k2'));
   const [picked, setPicked] = useState(null);
   const [stars, setStars] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -58,7 +58,7 @@ function GameShell({ game, onExit }) {
     setStats((s) => ({ attempts: s.attempts + 1, correct: s.correct + (ok ? 1 : 0),
       byDiff: { ...s.byDiff, [diff]: (s.byDiff[diff] || 0) + (ok ? 1 : 0) } }));
     if (ok) {
-      const earned = diff === 'easy' ? 1 : diff === 'medium' ? 2 : 3;
+      const earned = { prek: 1, k2: 2, g34: 3, g56: 4, g78: 5 }[diff] || 2;
       setStars((s) => s + earned);
       setTotalStars((s) => s + earned);
       setStreak((s) => s + 1);
@@ -75,19 +75,21 @@ function GameShell({ game, onExit }) {
       <div className="row" style={{ marginBottom: 10 }}>
         <Btn color="blue" onClick={onExit} style={{ fontSize: 18, padding: '12px 20px' }}>← Back</Btn>
         <div style={{ flex: 1 }} />
-        <div className="row" style={{ gap: 6 }}>
+        <div className="row" style={{ gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
           {[
-            ['easy', '⭐ Level 1', '#2ECC71'],
-            ['medium', '⭐⭐ Level 2', '#F1C40F'],
-            ['hard', '⭐⭐⭐ Level 3', '#E91E8C'],
+            ['prek', '🍼 Pre-K', '#2ECC71'],
+            ['k2', '🧒 K-2', '#3498DB'],
+            ['g34', '📚 3-4', '#9B59B6'],
+            ['g56', '📖 5-6', '#F1C40F'],
+            ['g78', '🎓 7-8', '#E91E8C'],
           ].map(([d, l, col]) => (
             <button key={d} onClick={() => { setDiff(d); next(d); }}
               style={{
                 background: diff === d ? col : 'rgba(255,255,255,.08)',
                 border: `2px solid ${diff === d ? col : 'rgba(255,255,255,.2)'}`,
-                borderRadius: 16, padding: '10px 14px', cursor: 'pointer',
-                color: diff === d ? '#0d0628' : '#fff', fontWeight: 900, fontSize: 14,
-                boxShadow: diff === d ? `0 0 16px ${col}` : 'none',
+                borderRadius: 14, padding: '8px 12px', cursor: 'pointer',
+                color: diff === d ? '#0d0628' : '#fff', fontWeight: 900, fontSize: 13,
+                boxShadow: diff === d ? `0 0 14px ${col}` : 'none',
               }}>
               {l}
             </button>
@@ -104,14 +106,14 @@ function GameShell({ game, onExit }) {
         <div style={{ fontSize: 15, fontWeight: 700, color: '#8a7f9e', marginBottom: 8 }}>{q.q}</div>
         <div className={`game-q-display${game.id === 'pattern' ? ' pattern' : ''}`}>{q.display}</div>
         <div className="grid2" style={{ marginTop: 14 }}>
-          {q.options.map((opt) => {
+          {q.options.map((opt, oi) => {
             const isAns = opt === q.answer;
             const isPicked = picked === opt;
             let bg = {};
             if (picked && isAns) bg = { background: 'linear-gradient(180deg,#8fe6b3,#2ECC71)', color: '#fff' };
             else if (isPicked && !isAns) bg = { background: 'linear-gradient(180deg,#ffb3a6,#e74c3c)', color: '#fff' };
             return (
-              <button key={String(opt)} className="game-btn" onClick={() => pick(opt)} disabled={!!picked}
+              <button key={`${oi}-${String(opt)}`} className="game-btn" onClick={() => pick(opt)} disabled={!!picked}
                 style={{ '--g1': '#9fd4f5', '--g2': '#3498DB', '--g3': '#2378b3', ...bg, fontSize: String(opt).length > 10 ? 15 : 20, padding: '16px 8px' }}>
                 {String(opt)}
               </button>
