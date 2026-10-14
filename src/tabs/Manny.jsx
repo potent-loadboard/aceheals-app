@@ -163,6 +163,8 @@ function GameShell({ game, onExit }) {
               Remember them all! 🧠
             </div>
           </div>
+        ) : q.bigDisplay ? (
+          <div style={{ fontSize: 120, textAlign: 'center', margin: '16px 0', lineHeight: 1 }}>{q.display}</div>
         ) : (
           <div className={`game-q-display${game.id === 'pattern' ? ' pattern' : ''}`}>{q.display}</div>
         )}

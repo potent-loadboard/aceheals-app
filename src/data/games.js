@@ -11,7 +11,11 @@ const EMOTIONS = [['😊','happy'],['😢','sad'],['😠','angry'],['😨','scar
 const SHAPES = [['🔵','circle'],['🟥','square'],['🔺','triangle'],['⭐','star'],['❤️','heart'],['🔷','diamond'],['⬛','rectangle'],['🟣','oval']];
 const COLORS = [['🔴','red'],['🔵','blue'],['🟢','green'],['🟡','yellow'],['🟣','purple'],['🟠','orange'],['⚫','black'],['⚪','white'],['🟤','brown'],['💗','pink']];
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-const PLANETS = [['🌑','Mercury'],['🌕','Venus'],['🌍','Earth'],['🔴','Mars'],['🟠','Jupiter'],['🪐','Saturn'],['💎','Uranus'],['🌊','Neptune']];
+const PLANETS = [
+  ['🌑','Mercury'],['🌕','Venus'],['🌍','Earth'],
+  ['🔴','Mars'],['🟠','Jupiter'],['🪐','Saturn'],
+  ['🩵','Uranus'],['🔵','Neptune']
+];
 const WEATHER = [['☀️','sunny'],['🌧️','rainy'],['⛈️','stormy'],['❄️','snowy'],['☁️','cloudy'],['🌈','rainbow'],['💨','windy'],['🌫️','foggy']];
 const SCIENCE = [
   ['💧','What falls from clouds as rain?','water'],['🌱','What do plants need to grow? (pick one)','sunlight'],
@@ -100,7 +104,14 @@ export const GAMES = [
 { id:'animals', name:'Animal Kingdom', emoji:'🦁', color:'#FF6B35',
   gen(){ const [e,name]=rnd(ANIMALS); return { q:'Which animal is this? 🦁', display:e, options:mc(name,ANIMALS.map(a=>a[1])), answer:name, hint:`This is a ${name}! Look closely — you're amazing at this!` }; } },
 { id:'space', name:'Space Explorer', emoji:'🚀', color:'#1A1040',
-  gen(){ const [e,name]=rnd(PLANETS); return { q:'Which planet is this? 🪐', display:e, options:mc(name,PLANETS.map(p=>p[1])), answer:name, hint:`That's ${name}! You're a super space explorer! 🚀` }; } },
+  gen(diff){
+    const [e,name]=rnd(PLANETS);
+    // For young kids, show a color hint
+    const hintExtra = (diff === 'prek' || diff === 'k2') ? ` Look at the color!` : '';
+    return { q:'Which planet is this? 🪐', display:e, bigDisplay: true,
+      options:mc(name,PLANETS.map(p=>p[1])), answer:name,
+      hint:`That's ${name}!${hintExtra} You're a super space explorer! 🚀` };
+  } },
 { id:'weather', name:'Weather Watcher', emoji:'🌤️', color:'#3498DB',
   gen(){ const [e,name]=rnd(WEATHER); return { q:'What\'s the weather like? 🌤️', display:e, options:mc(name,WEATHER.map(w=>w[1])), answer:name, hint:`Pretend you're outside — it's ${name}!` }; } },
 { id:'skip', name:'Skip Counting', emoji:'🔢', color:'#9B59B6',
@@ -145,15 +156,28 @@ export const GAMES = [
       hint:`${a} and ${b} rhyme — sing it out loud! 🎶` };
   } },
 { id:'opposites', name:'Opposites', emoji:'↔️', color:'#F1C40F',
-  gen(){ const [a,b]=rnd(OPPOSITES); const ans=b.split(' ')[1]||b.split(' ')[0];
-    return { q:`What's the opposite of ${a}? 🤔`, display:a, options:mc(ans,OPPOSITES.map(o=>o[1].split(' ')[1]||o[1].split(' ')[0])), answer:ans, hint:`Think about the flip side — it's ${b}! 🔄` }; } },
+  gen(){ const [a,b]=rnd(OPPOSITES);
+    // Show full "word emoji" for clarity (e.g. "night 🌙" not just "🌙")
+    const ans=b;
+    return { q:`What's the opposite of ${a}? 🤔`, display:a,
+      options:mc(ans,OPPOSITES.map(o=>o[1])), answer:ans,
+      hint:`Think about the flip side — it's ${b}! 🔄` }; } },
 { id:'money', name:'Money Counter', emoji:'💰', color:'#2ECC71',
   gen(diff){ const coins=[['🟤',1,'penny'],['⚪',5,'nickel'],['🔘',10,'dime'],['⭕',25,'quarter']];
     const n=diff==='prek'?2:diff==='k2'?2:diff==='g34'?3:diff==='g56'?3:4; let total=0; let coinsShown=[];
     for(let i=0;i<n;i++){ const [emoji,v,name]=rnd(coins); total+=v; coinsShown.push(`${emoji}${v}¢`); }
     return { q:'Count the coins! 🪙', display:coinsShown.join('  +  '), options:mc(total,[total-5,total+5,total-10,total+10,total+1,total-1].filter(x=>x>0)), answer:total, hint:`You're rich! Count those coins again! 🤑` }; } },
 { id:'clock', name:'Clock Reader', emoji:'🕐', color:'#3498DB',
-  gen(){ const [face,t]=rnd(CLOCKS); return { q:'What time is it? ⏰', display:face, options:mc(t,CLOCKS.map(x=>x[1])), answer:t, hint:`You're a time detective — it's ${t}! 🕵️` }; } },
+  gen(diff){
+    // Young kids: o'clock only. Older: add half-hours
+    const pool = (diff === 'prek' || diff === 'k2')
+      ? CLOCKS.filter(x => x[1].includes("o clock"))
+      : CLOCKS;
+    const [face,t]=rnd(pool);
+    return { q:'What time is it? ⏰', display:face, bigDisplay: true,
+      options:mc(t,pool.map(x=>x[1])), answer:t,
+      hint:`You're a time detective — it's ${t}! 🕵️` };
+  } },
 { id:'map', name:'Map Explorer', emoji:'🗺️', color:'#FF6B35',
   gen(){ const [e,q,ans]=rnd(MAPS); const pool=['map 🗺️','compass 🧭','mountain 🏔️','ocean 🌊','island 🏝️','desert 🏜️'];
     return { q:q+' 🧭', display:e, options:mc(ans+' '+e,MAPS.map(m=>m[2]+' '+m[0])), answer:ans+' '+e, hint:`You're a great explorer! It's the ${ans}! 🗺️` }; } },
