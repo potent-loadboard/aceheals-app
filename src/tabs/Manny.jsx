@@ -73,7 +73,7 @@ function GameShell({ game, onExit }) {
   return (
     <div>
       <div className="row" style={{ marginBottom: 10 }}>
-        <Btn size="sm" color="cream" onClick={onExit}>← Games</Btn>
+        <Btn color="blue" onClick={onExit} style={{ fontSize: 18, padding: '12px 20px' }}>← Back</Btn>
         <div style={{ flex: 1 }} />
         {[['easy', '😊 Easy'], ['medium', '🙂 Medium'], ['hard', '🤩 Hard']].map(([d, l]) => (
           <Btn key={d} size="sm" color={diff === d ? 'orange' : 'cream'} onClick={() => { setDiff(d); next(d); }}>{l}</Btn>
@@ -118,6 +118,12 @@ function GameShell({ game, onExit }) {
         )}
         {showHint && !picked && <div style={{ fontSize: 14, marginTop: 8, color: '#8a7f9e' }}>💡 {q.hint}</div>}
       </Card>
+      {/* Big back button at bottom — easy thumb reach on tablet */}
+      <div style={{ marginTop: 16, textAlign: 'center' }}>
+        <Btn color="blue" onClick={onExit} style={{ fontSize: 20, padding: '16px 40px' }}>
+          ← Back to Games
+        </Btn>
+      </div>
     </div>
   );
 }
