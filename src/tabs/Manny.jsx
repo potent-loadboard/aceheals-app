@@ -191,9 +191,15 @@ function GameShell({ game, onExit }) {
             boxShadow: '0 0 40px rgba(255,230,0,.6), 0 0 80px rgba(255,230,0,.3)',
             animation: 'celebrate-pop .5s ease-out',
           }}>
-            <div style={{ fontSize: 64, animation: 'kid-bob 1s ease-in-out infinite' }}>🎉</div>
-            <div style={{ fontSize: 28, fontWeight: 900, color: '#ffe600', textShadow: '0 0 20px rgba(255,230,0,.8)', marginTop: 8 }}>
+            <div style={{ fontSize: 72, animation: 'kid-bob .8s ease-in-out infinite' }}>🦅</div>
+            <div style={{ fontSize: 14, color: '#F1C40F', fontWeight: 700, marginTop: 4 }}>
+              Giffy says:
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 900, color: '#ffe600', textShadow: '0 0 20px rgba(255,230,0,.8)', marginTop: 4 }}>
               {pick2(PRAISE)}
+            </div>
+            <div style={{ fontSize: 16, color: '#F1C40F', fontStyle: 'italic', marginTop: 6 }}>
+              "{pick2(GIFFY_PRAISE)}"
             </div>
             <div style={{ fontSize: 40, marginTop: 8 }}>⭐🌟⭐</div>
             <div style={{ fontSize: 14, color: '#b9a8e8', marginTop: 4 }}>+{lastEarned} stars!</div>
@@ -228,6 +234,14 @@ function GameShell({ game, onExit }) {
     </div>
   );
 }
+const GIFFY_PRAISE = [
+  "RAWR! You're amazing!",
+  "*happy wing flaps* You did it!",
+  "I'm so proud I could fly!",
+  "Best human ever! Can I be your sidekick?",
+  "WOW! Even my eagle eyes are impressed!",
+  "You did that! High-five with my tiny wing!",
+];
 function pick2(a) { return a[Math.floor(Math.random() * a.length)]; }
 
 // ================= ASL =================
