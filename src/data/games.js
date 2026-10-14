@@ -52,10 +52,11 @@ export const GAMES = [
     const seq = rnd(seqs);
     const n = diff === 'prek' ? 3 : diff === 'k2' ? 4 : diff === 'g34' ? 5 : diff === 'g56' ? 6 : 7;
     const pat = []; for (let i = 0; i < n; i++) pat.push(seq[i % 2]);
-    const answer = seq[n % 2];
+    // We show the first (n-1) items, so the answer is the nth item: pat[n-1] = seq[(n-1) % 2]
+    const answer = seq[(n - 1) % 2];
     const shown = pat.slice(0, -1);
-    // Wrong answers: always different from each other AND from the correct answer
-    const decoys = ['🟣','🟠','⚪','⚫','🟤','💜','💚','🧡','🍇','🍊','🐝','🦋','🌈','☀️']
+    // Wrong answers: the other pattern item + 2 different animals (not random shapes)
+    const decoys = ['🐶','🐱','🐰','🦊','🐸','🐵','🐷','🐥','🦁','🐯','🐨','🐼']
       .filter((e) => e !== answer && e !== seq[0] && e !== seq[1]);
     const wrong1 = seq.find((s) => s !== answer); // the other one in the pattern
     const wrong2 = rnd(decoys);
