@@ -35,7 +35,22 @@ function GameShell({ game, onExit }) {
 
   const next = (d = diff) => {
     setQ(game.gen(d)); setPicked(null); setShowHint(false);
+    // Memory game: show memorize phase first
+    if (game.id === 'memory') {
+      setMemorizing(true);
+      setTimeout(() => setMemorizing(false), 3000);
+    }
   };
+  const [memorizing, setMemorizing] = useState(game.id === 'memory');
+
+  // Start memorize timer on first load for memory game
+  useEffect(() => {
+    if (game.id === 'memory') {
+      setMemorizing(true);
+      const t = setTimeout(() => setMemorizing(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [game.id]);
 
   // Auto-suggest difficulty based on learned profile
   useEffect(() => {
@@ -105,8 +120,26 @@ function GameShell({ game, onExit }) {
           <span className="pill">🔥 streak {streak}</span>
           <Btn size="sm" color={timerOn ? 'blue' : 'cream'} onClick={() => { setTimerOn(!timerOn); setSecs(0); }}>⏱️ {timerOn ? secs + 's' : 'Timer'}</Btn>
         </div>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#8a7f9e', marginBottom: 8 }}>{q.q}</div>
-        <div className={`game-q-display${game.id === 'pattern' ? ' pattern' : ''}`}>{q.display}</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#8a7f9e', marginBottom: 8 }}>
+          {game.id === 'memory' && memorizing ? '👀 Memorize these friends!' : q.q}
+        </div>
+        {game.id === 'memory' && memorizing ? (
+          <div style={{
+            fontSize: 48, padding: 24, textAlign: 'center',
+            background: 'linear-gradient(135deg,#1a0f2e,#2a1a4e)',
+            border: '3px solid #9B59B6', borderRadius: 20,
+            letterSpacing: 8, lineHeight: 1.6,
+          }}>
+            {q.fullSet?.join('  ')}
+            <div style={{ fontSize: 14, color: '#b9a8e8', marginTop: 12, letterSpacing: 2 }}>
+              Remember them all! 🧠
+            </div>
+          </div>
+        ) : (
+          <div className={`game-q-display${game.id === 'pattern' ? ' pattern' : ''}`}>{q.display}</div>
+        )}
+        {!(game.id === 'memory' && memorizing) && (
+        <>
         <div className="grid2" style={{ marginTop: 14 }}>
           {q.options.map((opt, oi) => {
             const isAns = opt === q.answer;
@@ -153,6 +186,8 @@ function GameShell({ game, onExit }) {
           <div style={{ marginTop: 10 }}><Btn size="sm" color="cream" onClick={() => setShowHint(!showHint)}>💡 Hint</Btn></div>
         )}
         {showHint && !picked && <div style={{ fontSize: 14, marginTop: 8, color: '#8a7f9e' }}>💡 {q.hint}</div>}
+        </>
+        )}
       </Card>
       {/* Big back button at bottom — easy thumb reach on tablet */}
       <div style={{ marginTop: 16, textAlign: 'center' }}>

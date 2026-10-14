@@ -138,7 +138,10 @@ export const GAMES = [
       [['🧱','Stack blocks'],['🏰','Build a tower'],['🎉','Knock it down!']],
     ];
     const s=rnd(seqs); const order=shuffle(s);
-    return { q:'What happens first? 📖', display:order.map(x=>x[0]).join('  '), options:mc(s[0][1],s.map(x=>x[1])), answer:s[0][1], hint:`First: ${s[0][0]} ${s[0][1]}! You're telling the story!` }; } },
+    // 4th decoy: a silly wrong step that doesn't belong
+    const decoys=['🚀 Blast off!','🎤 Sing a song','🏊 Go swimming','🎮 Play games'];
+    const wrongStep=rnd(decoys);
+    return { q:'What happens first? 📖', display:order.map(x=>x[0]).join('  '), options:mc(s[0][1],[...s.map(x=>x[1]),wrongStep]), answer:s[0][1], hint:`First: ${s[0][0]} ${s[0][1]}! You're telling the story!` }; } },
 { id:'science', name:'Science Lab', emoji:'🔬', color:'#2ECC71',
   gen(){ const [e,q,ans]=rnd(SCIENCE); const pool=[['💧','water'],['☀️','sunlight'],['🦴','bones'],['❤️','heart'],['🌙','moon'],['🔥','fire'],['🌬️','air'],['🌱','soil']];
     return { q:q+' 🔬', display:e, options:mc(ans+' '+e,pool.map(p=>p[1]+' '+p[0])), answer:ans+' '+e, hint:`Think like a scientist — it's ${ans}! 🧪` }; } },
@@ -147,7 +150,9 @@ export const GAMES = [
     const n=diff==='prek'?3:diff==='k2'?3:diff==='g34'?4:diff==='g56'?5:6;
     const shown=shuffle(pool).slice(0,n); const missing=rnd(shown);
     const rest=shown.filter(e=>e!==missing);
-    return { q:'Which one is missing? 🧠', display:'👀 '+rest.join('  ')+'  ❓', options:mc(missing,pool), answer:missing, hint:`Look at the group — which friend is hiding? 🙈` }; } },
+    return { q:'Which one is missing? 🧠', display:'👀 '+rest.join('  ')+'  ❓',
+      fullSet: shown, // shown during memorize phase
+      options:mc(missing,pool), answer:missing, hint:`Look at the group — which friend is hiding? 🙈` }; } },
 ];
 
 // ASL: 15 survival signs (per spec)
