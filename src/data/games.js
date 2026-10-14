@@ -37,11 +37,30 @@ function mc(answer, pool, n = 4) {
 
 export const GAMES = [
 { id:'pattern', name:'Pattern Match', emoji:'🧩', color:'#9B59B6',
-  gen(diff){ const seq=[['🔴','🔵'],['⭐','🌙'],['🍎','🍌'],['🐶','🐱']].map(rnd)[0];
-    const n = diff==='easy'?4:diff==='medium'?6:8;
-    const pat=[]; for(let i=0;i<n;i++) pat.push(seq[i%2]);
-    const answer=seq[n%2]; const shown=pat.slice(0,-1);
-    return { q:'What comes next? 🤔', display:shown.join(' ')+' ❓', options:mc(answer,[seq[0],seq[1],'⭐','🔴']), answer, hint:`Look for the pattern — it repeats! ${seq[0]} then ${seq[1]}. Count along!` }; } },
+  gen(diff){
+    const seqs = [
+      ['🔴','🔵'], ['⭐','🌙'], ['🍎','🍌'], ['🐶','🐱'],
+      ['🟢','🟡'], ['❤️','💙'], ['🌻','🌷'], ['🐠','🐢'],
+    ];
+    const seq = rnd(seqs);
+    const n = diff === 'easy' ? 4 : diff === 'medium' ? 5 : 6;
+    const pat = []; for (let i = 0; i < n; i++) pat.push(seq[i % 2]);
+    const answer = seq[n % 2];
+    const shown = pat.slice(0, -1);
+    // Wrong answers: always different from each other AND from the correct answer
+    const decoys = ['🟣','🟠','⚪','⚫','🟤','💜','💚','🧡','🍇','🍊','🐝','🦋','🌈','☀️']
+      .filter((e) => e !== answer && e !== seq[0] && e !== seq[1]);
+    const wrong1 = seq.find((s) => s !== answer); // the other one in the pattern
+    const wrong2 = rnd(decoys);
+    const wrong3 = rnd(decoys.filter((e) => e !== wrong2));
+    const options = shuffle([answer, wrong1, wrong2, wrong3]);
+    return {
+      q: 'What comes next? 🤔',
+      display: shown.join(' ') + '  ❓',
+      options, answer,
+      hint: `Look at the pattern — it goes ${seq[0]} then ${seq[1]}, over and over! What's missing? 🧩`,
+    };
+  } },
 { id:'sight', name:'Sight Words', emoji:'📖', color:'#3498DB',
   gen(){ const w=rnd(SIGHT); return { q:'Tap the word! 👆', display:'🔊 '+w.toUpperCase(), options:mc(w,SIGHT), answer:w, hint:`Sound it out like a robot: "${w}". You're a reading superstar!` }; } },
 { id:'add', name:'Addition', emoji:'➕', color:'#2ECC71',
